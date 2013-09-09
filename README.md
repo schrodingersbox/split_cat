@@ -15,11 +15,6 @@ This engine provides a framework for split testing.
 
 ##TODO
 
-  * Define models & migrations
-    * Remove user_id from subjects
-
-    * Add indexes
-
   * Experiment definition via config
 
   * Admin pages & helpers
@@ -34,6 +29,11 @@ This engine provides a framework for split testing.
 
   * Document
     * Getting started
+    * Background
+      * UML
+      * Rules
+        * A user can only have one hypothesis per-experiment
+        * A user can have many goals per-experiment
     * How to
         * Create an experiment
         * Run an experiment
