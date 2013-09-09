@@ -12,6 +12,7 @@ This engine provides a framework for split testing.
  * [The Semi-Isolated Rails Engine](http://bibwild.wordpress.com/2012/05/10/the-semi-isolated-rails-engine/)
  * [FactoryGirl](https://github.com/thoughtbot/factory_girl)
  * [Shoulda](https://github.com/thoughtbot/shoulda-matchers)
+ * [The one line split-test, or how to A/B all the time](http://www.startuplessonslearned.com/2008/09/one-line-split-test-or-how-to-ab-all.html)
 
 ##TODO
 

@@ -5,6 +5,7 @@ require 'split_cat/version'
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
+
   s.name        = 'split_cat'
   s.version     = SplitCat::VERSION
   s.authors     = ['Rich Humphrey']
@@ -23,4 +24,11 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec-rails', '~>2.14.0'
   s.add_development_dependency 'webrat', '~>0.7.3'
   s.add_development_dependency 'factory_girl_rails', '~> 4.0'
+
+  s.add_development_dependency 'autotest'
+  s.add_development_dependency 'autotest-fsevent'
+  s.add_development_dependency 'autotest-growl'
+  s.add_development_dependency 'autotest-rails'
+  s.add_development_dependency 'autotest-standalone'
+
 end
