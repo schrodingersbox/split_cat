@@ -11,17 +11,12 @@ This engine provides a framework for split testing.
  * [Clarifying the Roles of the .gemspec and Gemfile](http://yehudakatz.com/2010/12/16/clarifying-the-roles-of-the-gemspec-and-gemfile/)
  * [The Semi-Isolated Rails Engine](http://bibwild.wordpress.com/2012/05/10/the-semi-isolated-rails-engine/)
  * [FactoryGirl](https://github.com/thoughtbot/factory_girl)
+ * [Shoulda](https://github.com/thoughtbot/shoulda-matchers)
 
 ##TODO
 
   * Define models & migrations
-
-rails g model Experiment name:string, description:string, created_at:datetime
-rails g model Subject user_id:integer, token:string, created_at:datetime
-rails g model Hypothesis name:string, description:string, experiment_id:integer, weight:integer
-rails g model Goal name:string, description:string, experiment_id:integer
-rails g model HypothesisSubject hypothesis_id:integer subject_id:integer, experiment_id:integer, created_at:datetime
-rails g model GoalSubject goal_id:integer, subject_id:integer, experiment_id:integer, hypothesis_id:integer, created_at:datetime
+    * Remove user_id from subjects
 
     * Add indexes
 
@@ -32,7 +27,18 @@ rails g model GoalSubject goal_id:integer, subject_id:integer, experiment_id:int
 
   * Experiment pages & helpers
 
+  * Test with large volume of test data
+    * Optimize indexes
+
   * REST API
+
+  * Document
+    * Getting started
+    * How to
+        * Create an experiment
+        * Run an experiment
+        * Evaluate an experiment
+        * Add user_id to subjects
 
 
 

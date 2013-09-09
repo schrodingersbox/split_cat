@@ -3,65 +3,41 @@ require 'spec_helper'
 module SplitCat
   describe Experiment do
 
-    before( :each ) do
-      @experiment = FactoryGirl.build( :empty_experiment )
-    end
-
     describe 'associations' do
 
       it 'has many goals' do
-        @experiment = FactoryGirl.create( :empty_experiment )
-        @goal_a = FactoryGirl.create( :goal_a, :experiment => @experiment )
-        @goal_b = FactoryGirl.create( :goal_b, :experiment => @experiment )
-
-        @experiment.goals.count.should eql( 2 )
+        should have_many( :goals )
       end
 
       it 'has many hypotheses' do
-        @experiment = FactoryGirl.create( :empty_experiment )
-        @hypothesis_a = FactoryGirl.create( :hypothesis_a, :experiment => @experiment )
-        @hypothesis_b = FactoryGirl.create( :hypothesis_b, :experiment => @experiment )
-
-        @experiment.hypotheses.count.should eql( 2 )
+        should have_many( :hypotheses )
       end
 
     end
 
-    describe 'attributes' do
+    describe 'database' do
 
-      it 'has a name' do
-        name = FactoryGirl.build( :empty_experiment ).name
-        @experiment.name = name
-        @experiment.name.should eql( name )
+      it 'has columns' do
+        should have_db_column( :id ).of_type( :integer )
+        should have_db_column( :name ).of_type( :string )
+        should have_db_column( :description ).of_type( :string )
+        should have_db_column( :created_at ).of_type( :datetime )
       end
 
-      it 'has a description' do
-        description = FactoryGirl.build( :empty_experiment ).description
-        @experiment.description = description
-        @experiment.description.should eql( description )
+      it 'has a  unique index on name' do
+        should have_db_index( :name ).unique(true)
       end
 
-      it 'has a created_at' do
-        created_at = FactoryGirl.build( :empty_experiment ).created_at
-        @experiment.created_at = created_at
-        @experiment.created_at.should eql( created_at )
-      end
     end
 
     describe 'constraints' do
 
       it 'validates the presence of name' do
-        @experiment.valid?.should be_true
-        @experiment.name = nil
-        @experiment.valid?.should be_false
-        @experiment.errors.messages[ :name ].should eql( ["can't be blank"] )
+        should validate_presence_of( :name )
       end
 
       it 'validates the uniqueness of name' do
-        FactoryGirl.create( :empty_experiment )
-
-        @experiment.valid?.should be_false
-        @experiment.errors.messages[ :name ].should eql( ["has already been taken"] )
+        should validate_uniqueness_of( :name )
       end
 
     end
