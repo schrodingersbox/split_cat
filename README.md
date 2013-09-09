@@ -14,10 +14,25 @@ This engine provides a framework for split testing.
 
 ##TODO
 
-  * Integrate spec_cat
   * Define models & migrations
-  * Experiment definition
+
+rails g model Experiment name:string, description:string, created_at:datetime
+rails g model Subject user_id:integer, token:string, created_at:datetime
+rails g model Hypothesis name:string, description:string, experiment_id:integer, weight:integer
+rails g model Goal name:string, description:string, experiment_id:integer
+rails g model HypothesisSubject hypothesis_id:integer subject_id:integer, experiment_id:integer, created_at:datetime
+rails g model GoalSubject goal_id:integer, subject_id:integer, experiment_id:integer, hypothesis_id:integer, created_at:datetime
+
+    * Add indexes
+
+  * Experiment definition via config
+
   * Admin pages & helpers
     * Archive & delete experiments
+
   * Experiment pages & helpers
+
   * REST API
+
+
+
