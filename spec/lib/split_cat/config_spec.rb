@@ -13,11 +13,27 @@ describe SplitCat::Config do
       full.goals.each { |g| e.add_goal( g.name, g.description ) }
       full.hypotheses.each { |h| e.add_hypothesis( h.name, h.description, h.weight ) }
     end
+    config.experiments
   end
 
   it 'is a singleton' do
     config.should be( SplitCat::Config.instance )
   end
+
+  #############################################################################
+  # Config#initialize
+
+  describe '#initialize' do
+
+    it 'initializes the experiment cache' do
+      config.send( :initialize )
+      config.experiments.should eql( {} )
+    end
+
+  end
+
+  #############################################################################
+  # Config#experiment
 
   describe '#experiment' do
 
@@ -32,6 +48,19 @@ describe SplitCat::Config do
         yielded.name.should eql( empty.name )
         yielded.description.should eql( empty.description )
       end
+    end
+
+  end
+
+  #############################################################################
+  # Config#experiments
+
+  describe '#experiments' do
+
+    it 'returns the experiment cache' do
+      setup_experiment
+      config.experiments.should be_a_kind_of( Hash )
+      config.experiments[ full.name.to_sym ].should be_present
     end
 
     context 'when the experiment is not in db' do
