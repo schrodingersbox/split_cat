@@ -14,13 +14,17 @@ This engine provides a framework for split testing.
  * [Shoulda](https://github.com/thoughtbot/shoulda-matchers)
  * [The one line split-test, or how to A/B all the time](http://www.startuplessonslearned.com/2008/09/one-line-split-test-or-how-to-ab-all.html)
 
-##TODO
+## TODO
+
+  * Can't hit AR inside config
 
   * Admin pages & helpers
     * Add dependent destroys
     * Archive & delete experiments
 
   * Experiment pages & helpers
+
+  * Figure out how to protect admin pages
 
   * Test with large volume of test data
     * Optimize indexes
