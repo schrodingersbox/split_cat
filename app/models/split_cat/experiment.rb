@@ -8,6 +8,9 @@ module SplitCat
     has_many :goals
     belongs_to :winner, :class_name => Hypothesis
 
+    #############################################################################
+    # simple accessors
+
     def add_goal( name, description = nil )
       goals << Goal.new( :name => name, :description => description )
     end
@@ -16,14 +19,26 @@ module SplitCat
       hypotheses << Hypothesis.new( :weight => weight, :name => name, :description => description )
     end
 
-    # Returns a random hypothesis with weighted probability
+    # Return a memoized hash of name => goals
 
-    def choose_hypothesis
-      total = 0
-      roll = rand( total_weight ) + 1
-      hypotheses.each { |h| return h if roll <= ( total += h.weight ) }
-      return hypotheses.first
+    def goal_hash
+       @goal_hash ||= {}.tap { |hash| goals.map { |g| hash[ g.name.to_sym ] = g } }
     end
+
+    # Return a memoized hash of name => hypotheses
+
+    def hypothesis_hash
+      @hypothesis_hash ||= {}.tap { |hash| hypotheses.map { |h| hash[ h.name.to_sym ] = h } }
+    end
+
+    # Returns a memoized sum of hypothesis weights
+
+    def total_weight
+      @total_weight ||= hypotheses.inject( 0 ) { |sum,h| sum + h.weight }
+    end
+
+    #############################################################################
+    # Experiment#get_hypothesis
 
     # Return the winner if one has been chosen.
     # Return nil if the token can't be found.
@@ -46,17 +61,18 @@ module SplitCat
       return hypothesis
     end
 
-    # Return a memoized hash of name => goals
+    # Returns a random hypothesis with weighted probability
 
-    def goal_hash
-       @goal_hash ||= {}.tap { |hash| goals.map { |g| hash[ g.name.to_sym ] = g } }
+    def choose_hypothesis
+      total = 0
+      roll = rand( total_weight ) + 1
+      hypotheses.each { |h| return h if roll <= ( total += h.weight ) }
+      return hypotheses.first
     end
 
-    # Return a memoized hash of name => hypotheses
 
-    def hypothesis_hash
-      @hypothesis_hash ||= {}.tap { |hash| hypotheses.map { |h| hash[ h.name.to_sym ] = h } }
-    end
+    #############################################################################
+    # Experiment#record_goal
 
     # Return true immediately if a winner has already been chosen.
     # Return false if the goal or token can't be found.
@@ -76,6 +92,16 @@ module SplitCat
       return true
     end
 
+    #############################################################################
+    # Experiment#lookup
+
+    def lookup
+      return self unless new_record?
+      ( db = self ).save! unless db = Experiment.includes( :goals, :hypotheses ).find_by_name( name )
+      return nil unless same_structure?( db )
+      return db
+    end
+
     # Returns true if the experiment has the same name, goals, and hypotheses as this one
 
     def same_structure?( experiment )
@@ -83,12 +109,6 @@ module SplitCat
       return false if goal_hash.keys != experiment.goal_hash.keys
       return false if hypothesis_hash.keys != experiment.hypothesis_hash.keys
       return true
-    end
-
-    # Returns a memoized sum of hypothesis weights
-
-    def total_weight
-      @total_weight ||= hypotheses.inject( 0 ) { |sum,h| sum + h.weight }
     end
 
   end

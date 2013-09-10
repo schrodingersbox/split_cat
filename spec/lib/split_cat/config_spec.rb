@@ -13,7 +13,6 @@ describe SplitCat::Config do
       full.goals.each { |g| e.add_goal( g.name, g.description ) }
       full.hypotheses.each { |h| e.add_hypothesis( h.name, h.description, h.weight ) }
     end
-    config.experiments
   end
 
   it 'is a singleton' do
@@ -63,32 +62,25 @@ describe SplitCat::Config do
       config.experiments[ full.name.to_sym ].should be_present
     end
 
-    context 'when the experiment is not in db' do
+    it 'calls lookup on every new experiment in the cache' do
+      config.experiments.clear
+      full
 
-      it 'creates an experiment' do
-        Experiment.find_by_name( full.name ).should be_nil
-        setup_experiment
-        Experiment.find_by_name( full.name ).should be_present
-      end
-
+      Experiment.should_receive( :new ).and_return( full )
+      full.should_receive( :lookup ).and_return( nil )
+      setup_experiment
+      config.experiments
     end
 
-    context 'when experiment is in db' do
+    it 'only looks up new records' do
+      config.experiments.clear
+      full
 
-      it 'caches it if the structures match between config and db' do
-        config.experiments.clear
-        FactoryGirl.create( :experiment_full )
-        setup_experiment
-        config.experiments[ full.name.to_sym ].should be_present
-      end
-
-      it 'raises an exception if the structures do not match between config and db' do
-        experiment = FactoryGirl.create( :experiment_full )
-        experiment.goals.delete( experiment.goals.first )
-
-        expect { setup_experiment }.to raise_error
-      end
-
+      Experiment.should_receive( :new ).and_return( full )
+      full.stub( :new_record? ).and_return( false )
+      full.should_not_receive( :lookup )
+      setup_experiment
+      config.experiments
     end
 
   end

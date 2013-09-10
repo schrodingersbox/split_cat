@@ -16,10 +16,6 @@ This engine provides a framework for split testing.
 
 ## TODO
 
-  * Can't hit AR inside config
-  * Examples of configuring experiments both in initializer and in code at point-of-use
-  * Break out SplitCat::Cache from config
-
   * Configure failure behavior - log vs exception - diff per-env
   * Log experiment lookup failures
 

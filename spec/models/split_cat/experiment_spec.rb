@@ -180,6 +180,42 @@ module SplitCat
       end
 
       #############################################################################
+      # Experiment#lookup
+
+      describe '#lookup' do
+
+        before( :each ) do
+          @expected = FactoryGirl.create( :experiment_full )
+          @experiment = FactoryGirl.build( :experiment_full )
+        end
+
+        it 'returns itself if its not a new record' do
+          @expected.new_record?.should be_false
+          @expected.lookup.should be( @expected )
+        end
+
+        it 'saves to db if an experiment with this name is not already there' do
+          @expected.destroy
+
+          Experiment.count.should eql( 0 )
+          @experiment.lookup
+          Experiment.count.should eql( 1 )
+        end
+
+        it 'returns nil if the in-memory and in-db structures do not match' do
+          @experiment.should_receive( :same_structure? ).and_return( false )
+          @experiment.lookup.should be_nil
+        end
+
+        it 'returns the copy from the db' do
+          @experiment.id.should be_nil
+          @experiment.lookup.id.should eql( @expected.id )
+        end
+
+      end
+
+
+      #############################################################################
       # Experiment#record_goal
 
       describe '#record_goal' do
