@@ -1,9 +1,19 @@
 FactoryGirl.define do
 
-  factory :empty_experiment, :class => SplitCat::Experiment do
+  factory :experiment_empty, :class => SplitCat::Experiment do
     name 'test'
     description 'this is only a test'
     created_at Time.now
+
+    factory :experiment_full, :class => SplitCat::Experiment do
+      after( :build ) do |experiment|
+        experiment.goals << FactoryGirl.build( :goal_a )
+        experiment.goals << FactoryGirl.build( :goal_b )
+        experiment.hypotheses << FactoryGirl.build( :hypothesis_a )
+        experiment.hypotheses << FactoryGirl.build( :hypothesis_b )
+      end
+    end
+
   end
 
 end
