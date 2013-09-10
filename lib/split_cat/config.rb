@@ -13,7 +13,7 @@ module SplitCat
 
     def experiment( name, description = nil )
       yield config = Experiment.new( :name => name, :description => description )
-      (db = config).save! unless db = Experiment.find_by_name( name )
+      (db = config).save! unless db = Experiment.includes( :goals, :hypotheses ).find_by_name( name )
 
       if db.same_structure?( config )
         @experiments[ name.to_sym ] = db

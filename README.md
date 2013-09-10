@@ -16,12 +16,6 @@ This engine provides a framework for split testing.
 
 ##TODO
 
-  * Choose hypothesis
-    * add & use experiment.winner_id -> hypothesis
-    * Returns nil if experiment is not loaded, log as error
-
-  * Ensure experiment load from DB is including goals and hypotheses
-
   * Admin pages & helpers
     * Add dependent destroys
     * Archive & delete experiments
