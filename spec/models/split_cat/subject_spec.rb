@@ -3,6 +3,10 @@ require 'spec_helper'
 module SplitCat
   describe Subject do
 
+    it_behaves_like 'tokenable' do
+      let( :tokenable ) { Subject.new }
+    end
+
     describe 'database' do
 
       it 'has columns' do
@@ -13,18 +17,6 @@ module SplitCat
 
       it 'has a  unique index on token' do
         should have_db_index( :token ).unique(true)
-      end
-
-    end
-
-    describe 'validations' do
-
-      it 'validates the presence of name' do
-        should validate_presence_of( :token )
-      end
-
-      it 'validates the uniqueness of name' do
-        should validate_uniqueness_of( :token )
       end
 
     end

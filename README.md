@@ -16,6 +16,10 @@ This engine provides a framework for split testing.
 
 ##TODO
 
+  * subject token generator
+
+  * change "experiment item" to "splitable"
+
   * Choose hypothesis
     * add & use experiment.winner_id -> hypothesis
     * Returns nil if experiment is not loaded, log as error

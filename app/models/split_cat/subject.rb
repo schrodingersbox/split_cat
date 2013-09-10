@@ -1,8 +1,5 @@
 module SplitCat
   class Subject < ActiveRecord::Base
-
-    validates_presence_of :token
-    validates_uniqueness_of :token
-
+    include SplitCat::Tokenable
   end
 end
