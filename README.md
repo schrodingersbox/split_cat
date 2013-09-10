@@ -16,11 +16,11 @@ This engine provides a framework for split testing.
 
 ##TODO
 
-  * Need to figure out specs for concerns
-
   * Choose hypothesis
     * add & use experiment.winner_id -> hypothesis
     * Returns nil if experiment is not loaded, log as error
+
+  * Experiment.winner_id should short circuit
 
   * Admin pages & helpers
     * Archive & delete experiments

@@ -1,8 +1,12 @@
 FactoryGirl.define do
 
   factory :subject_a, :class => SplitCat::Subject do
-    user_id 12
-    token 'abcxyz123'
+    token 'secret'
+    created_at Time.now
+  end
+
+  factory :subject_b, :class => SplitCat::Subject do
+    token 'foobar'
     created_at Time.now
   end
 

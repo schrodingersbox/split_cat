@@ -3,6 +3,7 @@ class CreateSplitCatExperiments < ActiveRecord::Migration
     create_table :split_cat_experiments do |t|
       t.string :name, :null => false
       t.string :description
+      t.integer :winner_id
       t.datetime :created_at
 
       t.index :name, :unique => true

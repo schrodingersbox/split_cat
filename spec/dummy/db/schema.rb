@@ -16,6 +16,7 @@ ActiveRecord::Schema.define(version: 20130909061041) do
   create_table "split_cat_experiments", force: true do |t|
     t.string   "name",        null: false
     t.string   "description"
+    t.integer  "winner_id"
     t.datetime "created_at"
   end
 

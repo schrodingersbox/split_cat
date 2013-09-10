@@ -6,4 +6,6 @@ describe SplitCat::Tokenable do
     should be_a_kind_of( ActiveSupport::Concern )
   end
 
+  it 'needs to be specced'
+
 end
