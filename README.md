@@ -16,9 +16,7 @@ This engine provides a framework for split testing.
 
 ##TODO
 
-  * subject token generator
-
-  * change "experiment item" to "splitable"
+  * Need to figure out specs for concerns
 
   * Choose hypothesis
     * add & use experiment.winner_id -> hypothesis

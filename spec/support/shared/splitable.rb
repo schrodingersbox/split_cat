@@ -1,4 +1,4 @@
-shared_examples_for 'an experiment item' do
+shared_examples_for 'splitable' do
 
   describe 'associations' do
 
