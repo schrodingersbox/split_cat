@@ -3,6 +3,11 @@ require 'spec_helper'
 module SplitCat
   describe Experiment do
 
+    let( :experiment_empty ) { FactoryGirl.build( :experiment_empty ) }
+    let( :experiment_full ) { FactoryGirl.build( :experiment_full ) }
+    let( :goal ) { FactoryGirl.build( :goal_a ) }
+    let( :hypothesis ) { FactoryGirl.build( :hypothesis_a ) }
+
     describe 'associations' do
 
       it 'has many goals' do
@@ -11,6 +16,10 @@ module SplitCat
 
       it 'has many hypotheses' do
         should have_many( :hypotheses )
+      end
+
+      it 'belongs to a winner hypotheses' do
+        should belong_to( :winner ).class_name( Hypothesis )
       end
 
     end
@@ -29,19 +38,15 @@ module SplitCat
 
     context 'instance methods' do
 
-      let( :experiment ) { FactoryGirl.build( :experiment_empty ) }
-      let( :goal ) { FactoryGirl.build( :goal_a ) }
-      let( :hypothesis ) { FactoryGirl.build( :hypothesis_a ) }
-
       #############################################################################
       # Experiment#add_goal
 
       describe '#add_goal' do
 
         it 'adds a goal to the experiment' do
-          goals = experiment.goals
+          goals = experiment_empty.goals
           goals.should be_empty
-          experiment.add_goal( goal.name, goal.description )
+          experiment_empty.add_goal( goal.name, goal.description )
 
           goals.size.should eql( 1 )
           goals.first.name.should eql( goal.name )
@@ -56,9 +61,9 @@ module SplitCat
       describe '#add_hypothesis' do
 
         it 'adds a hypothesis to the experiment' do
-          hypotheses = experiment.hypotheses
+          hypotheses = experiment_empty.hypotheses
           hypotheses.should be_empty
-          experiment.add_hypothesis( hypothesis.name, hypothesis.weight, hypothesis.description )
+          experiment_empty.add_hypothesis( hypothesis.name, hypothesis.weight, hypothesis.description )
 
           hypotheses.size.should eql( 1 )
           hypotheses.first.name.should eql( hypothesis.name )
@@ -69,17 +74,93 @@ module SplitCat
       end
 
       #############################################################################
+      # Experiment#choose_hypothesis
+
+      describe '#choose_hypothesis' do
+
+        before( :each ) do
+          @total_weight = experiment_full.total_weight
+          experiment_full.should_receive( :rand ).with( @total_weight ).and_return( 1 )
+        end
+
+        it 'generates a random number in range of total hypothesis weight' do
+          experiment_full.choose_hypothesis
+        end
+
+        it 'chooses a hypothesis by weight' do
+          experiment_full.choose_hypothesis.should eql( experiment_full.hypotheses.first )
+        end
+
+        it 'returns the chosen hypothesis' do
+          experiment_full.choose_hypothesis.should be_an_instance_of( Hypothesis )
+        end
+
+      end
+
+      #############################################################################
+      # Experiment#get_hypothesis
+
+      describe '#get_hypothesis' do
+
+        before( :each ) do
+          @experiment = FactoryGirl.create( :experiment_full )
+          @subject = FactoryGirl.create( :subject_a )
+          @hypothesis = @experiment.hypotheses.first
+        end
+
+        it 'returns the winner if one is defined' do
+          @experiment.winner = experiment_full.hypotheses.first
+          @experiment.get_hypothesis( @subject.token ).should eql( @experiment.winner )
+        end
+
+        it 'returns nil if it can not find the token' do
+          token = FactoryGirl.build( :subject_b ).token
+          @experiment.get_hypothesis( token ).should be_nil
+        end
+
+        it 'returns the old hypothesis if already assigned' do
+          HypothesisSubject.create( :hypothesis_id => @hypothesis.id, :subject_id => @subject.id, :experiment_id => @experiment.id )
+          @experiment.get_hypothesis( @subject.token ).should eql( @hypothesis )
+        end
+
+        it 'returns nil if it can not find the old assigned hypothesis' do
+          HypothesisSubject.create( :hypothesis_id => nil, :subject_id => @subject.id, :experiment_id => @experiment.id )
+          @experiment.get_hypothesis( @subject.token ).should be_nil
+        end
+
+        it 'chooses a hypothesis' do
+          @experiment.should_receive( :choose_hypothesis ).and_return( @hypothesis )
+          @experiment.get_hypothesis( @subject.token ).should eql( @hypothesis )
+        end
+
+        it 'creates a HypothesisSubject record' do
+          HypothesisSubject.delete_all
+          chosen = @experiment.get_hypothesis( @subject.token )
+          HypothesisSubject.count.should eql( 1 )
+
+          hs = HypothesisSubject.first
+          hs.subject_id.should eql( @subject.id )
+          hs.experiment_id.should eql( @experiment.id )
+          hs.hypothesis_id.should eql( chosen.id )
+        end
+
+        it 'returns the chosen hypothesis' do
+          @experiment.should_receive( :choose_hypothesis ).and_return( @hypothesis )
+          @experiment.get_hypothesis( @subject.token ).should eql( @hypothesis )
+        end
+
+      end
+
+      #############################################################################
       # Experiment#goal_hash
 
       describe '#goal_hash' do
 
-        let( :experiment ) { FactoryGirl.build( :experiment_full ) }
-
         it 'builds a hash of goals' do
-          goals = experiment.goal_hash
+          goals = experiment_full.goal_hash
           goals.size.should > 0
-          goals.size.should eql( experiment.goals.size )
-          experiment.goals.each { |g| goals[ g.name.to_sym ].should be_present }
+          goals.size.should eql( experiment_full.goals.size )
+          experiment_full.goals.each { |g| goals[ g.name.to_sym ].should be_present }
         end
 
       end
@@ -89,60 +170,13 @@ module SplitCat
 
       describe '#hypothesis_hash' do
 
-        let( :experiment ) { FactoryGirl.build( :experiment_full ) }
-
         it 'builds a hash of hypotheses' do
-          hypotheses = experiment.hypothesis_hash
+          hypotheses = experiment_full.hypothesis_hash
           hypotheses.size.should > 0
-          hypotheses.size.should eql( experiment.hypotheses.size )
-          experiment.hypotheses.each { |h| hypotheses[ h.name.to_sym ].should be_present }
+          hypotheses.size.should eql( experiment_full.hypotheses.size )
+          experiment_full.hypotheses.each { |h| hypotheses[ h.name.to_sym ].should be_present }
         end
 
-      end
-
-      #############################################################################
-      # Experiment#same_structure?
-
-      describe '#same_structure?' do
-
-        let( :experiment ) { FactoryGirl.create( :experiment_full ) }
-        let( :test ) { FactoryGirl.build( :experiment_full ) }
-
-        def same_structure_should_be( bool )
-          experiment.same_structure?( test ).should be( bool )
-          test.same_structure?( experiment ).should be( bool )
-        end
-
-        it 'returns true if the experiment, goals, and hypotheses match significantly' do
-          same_structure_should_be( true )
-        end
-
-        it 'returns false if there is a mismatch in the experiment name' do
-          test.name = experiment.name.reverse
-          same_structure_should_be( false )
-        end
-
-        it 'returns false if there is a mismatch in the number of goals' do
-          test.goals.delete( test.goals.first )
-          same_structure_should_be( false )
-        end
-
-        it 'returns false if there is a mismatch in the name of goals' do
-          goal = test.goals.first
-          goal.name = goal.name.reverse
-          same_structure_should_be( false )
-        end
-
-        it 'returns false if there is a mismatch in the number of hypotheses' do
-          test.hypotheses.delete( test.hypotheses.first )
-          same_structure_should_be( false )
-        end
-
-        it 'returns false if there is a mismatch in the name of hypotheses' do
-          hypothesis = test.hypotheses.first
-          hypothesis.name = hypothesis.name.reverse
-          same_structure_should_be( false )
-        end
       end
 
       #############################################################################
@@ -194,6 +228,64 @@ module SplitCat
           gs.hypothesis_id.should eql( @hypothesis.id )
         end
 
+      end
+
+    end
+
+    #############################################################################
+    # Experiment#same_structure?
+
+    describe '#same_structure?' do
+
+      let( :experiment ) { FactoryGirl.create( :experiment_full ) }
+      let( :test ) { FactoryGirl.build( :experiment_full ) }
+
+      def same_structure_should_be( bool )
+        experiment.same_structure?( test ).should be( bool )
+        test.same_structure?( experiment ).should be( bool )
+      end
+
+      it 'returns true if the experiment, goals, and hypotheses match significantly' do
+        same_structure_should_be( true )
+      end
+
+      it 'returns false if there is a mismatch in the experiment name' do
+        test.name = experiment.name.reverse
+        same_structure_should_be( false )
+      end
+
+      it 'returns false if there is a mismatch in the number of goals' do
+        test.goals.delete( test.goals.first )
+        same_structure_should_be( false )
+      end
+
+      it 'returns false if there is a mismatch in the name of goals' do
+        goal = test.goals.first
+        goal.name = goal.name.reverse
+        same_structure_should_be( false )
+      end
+
+      it 'returns false if there is a mismatch in the number of hypotheses' do
+        test.hypotheses.delete( test.hypotheses.first )
+        same_structure_should_be( false )
+      end
+
+      it 'returns false if there is a mismatch in the name of hypotheses' do
+        hypothesis = test.hypotheses.first
+        hypothesis.name = hypothesis.name.reverse
+        same_structure_should_be( false )
+      end
+    end
+
+    #############################################################################
+    # Experiment#total_weight
+
+    describe '#total_weight' do
+
+      it 'returns the sum of hypothesis weights' do
+        expected = 0
+        experiment_full.hypotheses.each { |h| expected += h.weight }
+        experiment_full.total_weight.should eql( expected )
       end
 
     end

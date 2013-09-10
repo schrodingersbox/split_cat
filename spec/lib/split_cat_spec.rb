@@ -46,10 +46,13 @@ describe SplitCat do
     it 'calls record_goal on the experiment' do
       goal = :test
       token = 'secret'
-      @experiment = FactoryGirl.build( :experiment_full )
-      @experiment.should_receive( :record_goal ).with( goal, token ).and_return( true )
-      SplitCat.config.should_receive( :experiments ).and_return( { @experiment.name.to_sym => @experiment } )
-      SplitCat.goal( @experiment.name.to_sym, goal, token ).should be_true
+
+      experiment = FactoryGirl.build( :experiment_full )
+
+      SplitCat.config.should_receive( :experiments ).and_return( { experiment.name.to_sym => experiment } )
+
+      experiment.should_receive( :record_goal ).with( goal, token ).and_return( true )
+      SplitCat.goal( experiment.name.to_sym, goal, token ).should be_true
     end
 
   end
@@ -59,7 +62,18 @@ describe SplitCat do
 
   describe '::hypothesis' do
 
-    it 'needs to be specced'
+    it 'returns false if the experiment is not cached' do
+      SplitCat.hypothesis( :does_not_exist, 'secret' ).should be_nil
+    end
+
+    it 'calls record_goal on the experiment' do
+      setup_experiments
+
+      @experiment.should_receive( :get_hypothesis ).with( @token ).and_return( @hypothesis )
+
+      result = SplitCat.hypothesis( @experiment.name.to_sym, @token )
+      @experiment.hypothesis_hash[ result ].should be_present
+    end
 
   end
 
@@ -76,6 +90,18 @@ describe SplitCat do
       SplitCat::Subject.create.token
     end
 
+  end
+
+  #############################################################################
+  # setup_experiments
+
+  def setup_experiments
+    @experiment = FactoryGirl.build( :experiment_full )
+    @goal = @experiment.goals.first.name.to_sym
+    @hypothesis = @experiment.hypotheses.first.name.to_sym
+    @token = 'secret'
+
+    SplitCat.config.should_receive( :experiments ).and_return( { @experiment.name.to_sym =>@experiment } )
   end
 
 end

@@ -17,7 +17,8 @@ module SplitCat
   end
 
   def self.hypothesis( name, token )
-    # TODO implement
+    return nil unless experiment = config.experiments[ name.to_sym ]
+    return experiment.get_hypothesis( token )
   end
 
   def self.token
