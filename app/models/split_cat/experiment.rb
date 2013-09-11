@@ -97,18 +97,21 @@ module SplitCat
 
     def lookup
       return self unless new_record?
-      ( db = self ).save! unless db = Experiment.includes( :goals, :hypotheses ).find_by_name( name )
-      return nil unless same_structure?( db )
-      return db
+
+      unless db = Experiment.includes( :goals, :hypotheses ).find_by_name( name )
+        ( db = self ).save!
+      end
+
+      return same_structure?( db )
     end
 
     # Returns true if the experiment has the same name, goals, and hypotheses as this one
 
     def same_structure?( experiment )
-      return false if name != experiment.name
-      return false if goal_hash.keys != experiment.goal_hash.keys
-      return false if hypothesis_hash.keys != experiment.hypothesis_hash.keys
-      return true
+      return nil if name.to_sym != experiment.name.to_sym
+      return nil if goal_hash.keys != experiment.goal_hash.keys
+      return nil if hypothesis_hash.keys != experiment.hypothesis_hash.keys
+      return experiment
     end
 
   end

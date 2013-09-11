@@ -12,13 +12,21 @@ module SplitCat
   end
 
   def self.goal( name, goal, token )
-    return false unless experiment = config.experiments[ name.to_sym ]
+    unless experiment = config.experiments[ name.to_sym ]
+      Rails.logger.error( "SplitCat.goal failed to find experiment: #{name}" )
+      return false
+    end
     return experiment.record_goal( goal, token )
   end
 
   def self.hypothesis( name, token )
-    return nil unless experiment = config.experiments[ name.to_sym ]
-    return experiment.get_hypothesis( token )
+    unless experiment = config.experiments[ name.to_sym ]
+      Rails.logger.error( "SplitCat.hypothesis failed to find experiment: #{name}" )
+      return nil
+    end
+
+    h = experiment.get_hypothesis( token )
+    return h ? h.name.to_sym : nil
   end
 
   def self.token

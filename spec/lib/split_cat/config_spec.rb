@@ -36,10 +36,6 @@ describe SplitCat::Config do
 
   describe '#experiment' do
 
-    it 'requires a block to yield to' do
-      expect { config.experiment( empty.name ) } .to raise_error( LocalJumpError )
-    end
-
     it 'yields a new initialized experiment' do
       config.experiment( empty.name, empty.description ) do |yielded|
         yielded.should be_new_record
@@ -47,6 +43,18 @@ describe SplitCat::Config do
         yielded.name.should eql( empty.name )
         yielded.description.should eql( empty.description )
       end
+    end
+
+    it 'stores the new experiment in the cache' do
+      experiments = config.instance_variable_get( :@experiments )
+      experiments.clear
+      config.experiment( empty.name.to_sym, empty.description ) {}
+      experiments.keys.size.should eql( 1 )
+    end
+
+    it 'captures and logs exceptions' do
+      Rails.logger.should_receive( :error )
+      config.experiment( empty.name.to_sym, empty.description )
     end
 
   end

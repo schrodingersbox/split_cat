@@ -43,12 +43,16 @@ describe SplitCat do
       SplitCat.goal( :does_not_exist, :goal_a, 'secret' ).should be_false
     end
 
+    it 'logs an error if the experiment is not cached' do
+      Rails.logger.should_receive( :error ).with( 'SplitCat.goal failed to find experiment: does_not_exist' )
+      SplitCat.goal( :does_not_exist, :goal_a, 'secret' ).should be_false
+    end
+
     it 'calls record_goal on the experiment' do
       goal = :test
       token = 'secret'
 
       experiment = FactoryGirl.build( :experiment_full )
-
       SplitCat.config.should_receive( :experiments ).and_return( { experiment.name.to_sym => experiment } )
 
       experiment.should_receive( :record_goal ).with( goal, token ).and_return( true )
@@ -64,6 +68,11 @@ describe SplitCat do
 
     it 'returns false if the experiment is not cached' do
       SplitCat.hypothesis( :does_not_exist, 'secret' ).should be_nil
+    end
+
+    it 'logs an error if the experiment is not cached' do
+      Rails.logger.should_receive( :error ).with( 'SplitCat.hypothesis failed to find experiment: does_not_exist' )
+      SplitCat.hypothesis( :does_not_exist, 'secret' ).should be_false
     end
 
     it 'calls record_goal on the experiment' do
@@ -98,10 +107,10 @@ describe SplitCat do
   def setup_experiments
     @experiment = FactoryGirl.build( :experiment_full )
     @goal = @experiment.goals.first.name.to_sym
-    @hypothesis = @experiment.hypotheses.first.name.to_sym
+    @hypothesis = @experiment.hypotheses.first
     @token = 'secret'
 
-    SplitCat.config.should_receive( :experiments ).and_return( { @experiment.name.to_sym =>@experiment } )
+    SplitCat.config.should_receive( :experiments ).and_return( { @experiment.name.to_sym => @experiment } )
   end
 
 end

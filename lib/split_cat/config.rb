@@ -10,8 +10,12 @@ module SplitCat
     end
 
     def experiment( name, description = nil )
-      yield config = Experiment.new( :name => name, :description => description )
-      @experiments[ name.to_sym ] = config
+      begin
+        yield config = Experiment.new( :name => name, :description => description )
+        @experiments[ name.to_sym ] = config
+      rescue Exception => e
+        Rails.logger.error( "SplitCat.Config.experiment failed to create #{name}:" + e.to_s  )
+      end
     end
 
     def experiments

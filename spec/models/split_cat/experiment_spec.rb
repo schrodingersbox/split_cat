@@ -203,7 +203,7 @@ module SplitCat
         end
 
         it 'returns nil if the in-memory and in-db structures do not match' do
-          @experiment.should_receive( :same_structure? ).and_return( false )
+          @experiment.should_receive( :same_structure? ).and_return( nil )
           @experiment.lookup.should be_nil
         end
 
@@ -277,8 +277,8 @@ module SplitCat
       let( :test ) { FactoryGirl.build( :experiment_full ) }
 
       def same_structure_should_be( bool )
-        experiment.same_structure?( test ).should be( bool )
-        test.same_structure?( experiment ).should be( bool )
+        experiment.same_structure?( test ).should be( bool ? test : nil )
+        test.same_structure?( experiment ).should be( bool ? experiment : nil )
       end
 
       it 'returns true if the experiment, goals, and hypotheses match significantly' do

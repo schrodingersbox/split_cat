@@ -16,8 +16,7 @@ This engine provides a framework for split testing.
 
 ## TODO
 
-  * Configure failure behavior - log vs exception - diff per-env
-  * Log experiment lookup failures
+  * Intermittent ArgumentError: A copy of SplitCat::Experiment has been removed from the module tree but is still active!
 
   * Admin pages & helpers
     * Add dependent destroys
@@ -29,6 +28,10 @@ This engine provides a framework for split testing.
 
   * Test with large volume of test data
     * Optimize indexes
+
+  * Cleanup
+      * Configurable cookie TTL
+      * Fill in all the table relationships
 
   * REST API
 
