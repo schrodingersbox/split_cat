@@ -30,6 +30,7 @@ ActiveRecord::Schema.define(version: 20130909061041) do
     t.datetime "created_at"
   end
 
+  add_index "split_cat_goal_subjects", ["experiment_id"], name: "index_split_cat_goal_subjects_on_experiment_id"
   add_index "split_cat_goal_subjects", ["goal_id", "subject_id"], name: "index_split_cat_gs_on_goal_id_and_subject_id", unique: true
 
   create_table "split_cat_goals", force: true do |t|

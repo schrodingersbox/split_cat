@@ -8,7 +8,11 @@ describe SplitCat::ExperimentsController do
     @controller.should be_a_kind_of( ApplicationController )
   end
 
-  describe '/get' do
+  before( :each ) do
+    @experiment = FactoryGirl.create( :experiment_full )
+  end
+
+  describe '/index' do
 
     it 'gets successfully' do
       get :index
@@ -16,10 +20,28 @@ describe SplitCat::ExperimentsController do
     end
 
     it 'assigns experiments' do
-      FactoryGirl.create( :experiment_full )
       get :index
       response.should be_success
       expect( assigns( :experiments ) ).to be_present
+    end
+
+  end
+
+  describe '/show' do
+
+    it 'gets successfully' do
+      pending 'route problem'
+      get :show
+      response.should be_success
+    end
+
+    it 'assigns hypothesis and goal counts' do
+      pending 'route problem'
+      get :show, :id => @experiment.id
+
+      response.should be_success
+      expect( assigns( :hypothesis_counts ) ).to be_present
+      expect( assigns( :goal_counts ) ).to be_present
     end
 
   end

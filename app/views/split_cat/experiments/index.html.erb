@@ -1,1 +1,16 @@
-<i>Experiments go here</i>
+<h1>Experiments</h1>
+<table border="1">
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+    </tr>
+
+    <% @experiments.each do |experiment| %>
+        <tr>
+            <td><%= experiment.id %></td>
+            <td><%= experiment.name %></td>
+            <td><%= link_to 'Show', experiment %></td>
+        </tr>
+    <% end %>
+
+</table>

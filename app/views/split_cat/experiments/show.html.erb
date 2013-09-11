@@ -1,0 +1,72 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Experiment</h1>
+<table>
+  <tr>
+    <th>ID</th>
+    <td><%= @experiment.id %></td>
+  </tr>
+  <tr>
+    <th>name</th>
+    <td><%= @experiment.name %></td>
+  </tr>
+  <tr>
+    <th>description</th>
+    <td><%= @experiment.description %></td>
+  </tr>
+</table>
+
+<h2>Report</h2>
+<table border="1">
+  <tr>
+    <th></th>
+    <% @experiment.hypotheses.each do |hypothesis| %>
+        <th><%= hypothesis.name %></th>
+    <% end %>
+  </tr>
+
+  <tr>
+    <th>Total</th>
+    <% @experiment.hypotheses.each do |hypothesis| %>
+        <td><%= @hypothesis_counts[ hypothesis.name.to_sym ] %> (100%)</td>
+    <% end %>
+  </tr>
+
+  <% @experiment.goals.each do |goal| %>
+    <tr>
+      <th><%= goal.name %></th>
+      <% @experiment.hypotheses.each do |hypothesis|
+         count = @goal_counts[ goal.name.to_sym ][ hypothesis.name.to_sym ]
+         ratio = @hypothesis_counts[ hypothesis.name.to_sym ] || 0
+         ratio = count.to_f / ratio if ratio != 0
+      %>
+          <td>
+                <%= count %> (<%=  sprintf( "%0.1f", ratio * 100 ) %>%)
+          </td>
+      <% end %>
+    </tr>
+  <% end %>
+
+</table>
+
+<h2>Hypotheses</h2>
+<ul>
+    <% @experiment.hypotheses.each do |hypothesis| %>
+        <li>
+            <%= hypothesis.name %> ( <%= hypothesis.weight %> ) - <%= hypothesis.description %>
+        </li>
+    <% end %>
+</ul>
+
+<h2>Goals</h2>
+<ul>
+    <% @experiment.goals.each do |goal| %>
+        <li>
+            <%= goal.name %> - <%= goal.description %>
+        </li>
+    <% end %>
+</ul>
+
+
+<%= link_to 'Edit', edit_experiment_path( @experiment ) %> |
+<%= link_to 'Back', experiments_path %>

@@ -17,10 +17,12 @@ This engine provides a framework for split testing.
 ## TODO
 
   * Intermittent ArgumentError: A copy of SplitCat::Experiment has been removed from the module tree but is still active!
+      * lib files calling static model methods?
 
   * Admin pages & helpers
     * Add dependent destroys
     * Archive & delete experiments
+    * CSV export
 
   * Experiment pages & helpers
 
