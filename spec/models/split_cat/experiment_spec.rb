@@ -152,6 +152,20 @@ module SplitCat
       end
 
       #############################################################################
+      # Experiment#goal_counts
+
+      describe '#goal_counts' do
+
+        it 'memoizes the results of GoalSubject.subject_counts' do
+          expected = {}
+          GoalSubject.should_receive( :subject_counts ).once.with( experiment_full ).and_return( expected )
+          experiment_full.goal_counts.should eql( expected )
+          experiment_full.goal_counts.should eql( expected )
+        end
+
+      end
+
+      #############################################################################
       # Experiment#goal_hash
 
       describe '#goal_hash' do
@@ -161,6 +175,26 @@ module SplitCat
           goals.size.should > 0
           goals.size.should eql( experiment_full.goals.size )
           experiment_full.goals.each { |g| goals[ g.name.to_sym ].should be_present }
+        end
+
+        it 'memoizes the results' do
+          experiment_full.goals.should_receive( :map ).once.and_return( [] )
+          experiment_full.goal_hash
+          experiment_full.goal_hash
+        end
+
+      end
+
+      #############################################################################
+      # Experiment#hypothesis_counts
+
+      describe '#hypothesis_counts' do
+
+        it 'memoizes the results of HypothesisSubject.subject_counts' do
+          expected = {}
+          HypothesisSubject.should_receive( :subject_counts ).once.with( experiment_full ).and_return( expected )
+          experiment_full.hypothesis_counts.should eql( expected )
+          experiment_full.hypothesis_counts.should eql( expected )
         end
 
       end
@@ -177,6 +211,11 @@ module SplitCat
           experiment_full.hypotheses.each { |h| hypotheses[ h.name.to_sym ].should be_present }
         end
 
+        it 'memoizes the results' do
+          experiment_full.hypotheses.should_receive( :map ).once.and_return( [] )
+          experiment_full.hypothesis_hash
+          experiment_full.hypothesis_hash
+        end
       end
 
       #############################################################################
@@ -318,10 +357,18 @@ module SplitCat
 
     describe '#total_weight' do
 
+      let( :experiment ) { FactoryGirl.create( :experiment_full ) }
+
       it 'returns the sum of hypothesis weights' do
-        expected = 0
-        experiment_full.hypotheses.each { |h| expected += h.weight }
-        experiment_full.total_weight.should eql( expected )
+        expected = experiment.hypotheses.inject( 0 ) { |sum,h| sum + h.weight }
+        expected.should_not eql( 0 )
+
+        experiment.total_weight.should eql( expected )
+      end
+
+      it 'memoizes the result' do
+        experiment.hypotheses.should_receive( :inject ).once.with( 0 ).and_return( 727 )
+        experiment.total_weight
       end
 
     end

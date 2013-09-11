@@ -19,13 +19,25 @@ module SplitCat
       hypotheses << Hypothesis.new( :weight => weight, :name => name, :description => description )
     end
 
-    # Return a memoized hash of name => goals
+    # Returns a memoized array of goal name => hypothesis_name => subject counts
+
+    def goal_counts
+      @goal_counts ||= GoalSubject.subject_counts( self )
+    end
+
+    # Return a memoized hash of goal name => goals
 
     def goal_hash
        @goal_hash ||= {}.tap { |hash| goals.map { |g| hash[ g.name.to_sym ] = g } }
     end
 
-    # Return a memoized hash of name => hypotheses
+    # Returns a memoized array of hypothesis name => subject counts
+
+    def hypothesis_counts
+      @hypothesis_counts ||= HypothesisSubject.subject_counts( self )
+    end
+
+    # Return a memoized hash of hypothesis name => hypotheses
 
     def hypothesis_hash
       @hypothesis_hash ||= {}.tap { |hash| hypotheses.map { |h| hash[ h.name.to_sym ] = h } }
@@ -113,6 +125,17 @@ module SplitCat
       return nil if hypothesis_hash.keys != experiment.hypothesis_hash.keys
       return experiment
     end
+
+    #############################################################################
+    # Experiment#to_csv
+
+    def to_csv
+      CSV.generate do |csv|
+        csv << [ nil ] + @experiment.hypotheses.map { |h| h.name }
+
+      end
+    end
+
 
   end
 end

@@ -8,8 +8,6 @@ module SplitCat
     end
 
     def show
-      @hypothesis_counts = HypothesisSubject.subject_counts( @experiment )
-      @goal_counts = GoalSubject.subject_counts( @experiment )
     end
 
   private

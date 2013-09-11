@@ -45,7 +45,7 @@ module SplitCat
 
         counts.size.should eql( experiment.hypotheses.size )
         experiment.hypotheses.each do |hypothesis|
-          counts[ hypothesis.name.to_sym ].should eql( {} )
+          counts[ hypothesis.name.to_sym ].should eql( 0 )
         end
       end
 

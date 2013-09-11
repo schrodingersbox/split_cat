@@ -30,18 +30,14 @@ describe SplitCat::ExperimentsController do
   describe '/show' do
 
     it 'gets successfully' do
-      pending 'route problem'
-      get :show
+      get :show, :id => @experiment.id
       response.should be_success
     end
 
-    it 'assigns hypothesis and goal counts' do
-      pending 'route problem'
+    it 'assigns experiments' do
       get :show, :id => @experiment.id
-
       response.should be_success
-      expect( assigns( :hypothesis_counts ) ).to be_present
-      expect( assigns( :goal_counts ) ).to be_present
+      expect( assigns( :experiment ) ).to be_present
     end
 
   end
