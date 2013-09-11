@@ -18,11 +18,25 @@ module SplitCat
 
       # Translate ID keys to name keys
 
-      experiment.hypotheses.each do |h|
-        counts[ h.name.to_sym ] = counts.delete( h.id )
-      end
+      experiment.hypotheses.each do |hypothesis|
+        hypothesis_name = hypothesis.name.to_sym
+        counts[ hypothesis_name ] = counts.delete( hypothesis.id ) || {}
+     end
 
       return counts
+    end
+
+  protected
+
+    def self.subject_count_sql( experiment )
+      sql =<<-EOSQL.strip_heredoc
+        select hypothesis_id, count( hypothesis_id )
+        from #{table_name}
+        where experiment_id = #{experiment.id}
+        group by hypothesis_id
+      EOSQL
+
+      return sql
     end
 
   end

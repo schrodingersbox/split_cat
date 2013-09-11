@@ -19,11 +19,15 @@ module SplitCat
 
     end
 
-    describe '#subject_counts' do
+    #############################################################################
+    # HypothesisSubject::subject_counts
+
+    describe '::subject_counts' do
+
+      let( :experiment ) { FactoryGirl.create( :experiment_full ) }
+      let( :subject )    { FactoryGirl.create( :subject_a ) }
 
       it 'returns a hash of hypothesis name => count' do
-        experiment = FactoryGirl.create( :experiment_full )
-        subject = FactoryGirl.create( :subject_a )
         hypothesis = experiment.hypotheses.first
 
         HypothesisSubject.create(
@@ -36,7 +40,29 @@ module SplitCat
         counts[ hypothesis.name.to_sym ].should eql( 1 )
       end
 
+      it 'includes hypotheses with no subjects in db' do
+        counts = HypothesisSubject.subject_counts( experiment )
+
+        counts.size.should eql( experiment.hypotheses.size )
+        experiment.hypotheses.each do |hypothesis|
+          counts[ hypothesis.name.to_sym ].should eql( {} )
+        end
+      end
+
     end
+
+    #############################################################################
+    # HypothesisSubject::subject_count_sql
+
+    describe '::subject_count_sql' do
+
+      let( :experiment ) { FactoryGirl.create( :experiment_full ) }
+
+      it 'generates SQL given an experiment' do
+        HypothesisSubject.send( :subject_count_sql, experiment ).should eql_file( 'spec/data/hypothesis_subject_count_sql.sql' )
+      end
+    end
+
 
   end
 end

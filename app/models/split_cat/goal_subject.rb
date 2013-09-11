@@ -6,27 +6,30 @@ module SplitCat
     def self.subject_counts( experiment )
       counts = {}
 
-      sql =<<-EOSQL
-        select goal_id, hypothesis_id,  count( goal_id )
-        from #{table_name}
-        where experiment_id = #{experiment.id}
-        group by goal_id, hypothesis_id
-      EOSQL
+      # Run the query
 
+      sql = subject_count_sql( experiment )
       return {} unless result = ActiveRecord::Base.connection.execute( sql )
+
+      # Load the results into a hash of goal id => hypothesis id => count
 
       result.each do |row|
         goal_id = row[ 0 ]
         hypothesis_id = row[ 1 ]
+        count = row[ 2 ]
 
         counts[ goal_id ] ||= {}
-        counts[ goal_id ][ hypothesis_id ] = row[ 2 ]
+        counts[ goal_id ][ hypothesis_id ] = count
       end
 
-      # Translate ID keys to name keys
+      # Translate ID keys to name symbols
 
-      experiment.goals.each do |g|
-        if hash = counts[ g.name.to_sym ] = counts.delete( g.id )
+      experiment.goals.each do |goal|
+        goal_name = goal.name.to_sym
+
+        unless hash = counts[ goal_name ] = counts.delete( goal.id )
+          counts[ goal_name ] = {}
+        else
           experiment.hypotheses.each do |h|
             hash[ h.name.to_sym ] = hash.delete( h.id )
           end
@@ -34,6 +37,19 @@ module SplitCat
       end
 
       return counts
+    end
+
+  protected
+
+    def self.subject_count_sql( experiment )
+      sql =<<-EOSQL.strip_heredoc
+        select goal_id, hypothesis_id, count( goal_id )
+        from #{table_name}
+        where experiment_id = #{experiment.id}
+        group by goal_id, hypothesis_id
+      EOSQL
+
+      return sql
     end
 
   end

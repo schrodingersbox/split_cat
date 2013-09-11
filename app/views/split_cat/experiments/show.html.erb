@@ -32,16 +32,19 @@
     <% end %>
   </tr>
 
-  <% @experiment.goals.each do |goal| %>
+  <% @experiment.goals.each do |goal|
+       goal_name = goal.name.to_sym
+  %>
     <tr>
       <th><%= goal.name %></th>
       <% @experiment.hypotheses.each do |hypothesis|
-         count = @goal_counts[ goal.name.to_sym ][ hypothesis.name.to_sym ]
-         ratio = @hypothesis_counts[ hypothesis.name.to_sym ] || 0
-         ratio = count.to_f / ratio if ratio != 0
+           hypothesis_name = hypothesis.name.to_sym
+           count = @goal_counts[ goal_name ][ hypothesis_name ]
+           ratio = @hypothesis_counts[ hypothesis_name ] || 0
+           ratio = count.to_f / ratio if ratio != 0
       %>
           <td>
-                <%= count %> (<%=  sprintf( "%0.1f", ratio * 100 ) %>%)
+                <%= count %> ( <%= sprintf( "%0.1f\%", ratio * 100 ) %>)
           </td>
       <% end %>
     </tr>
@@ -53,7 +56,8 @@
 <ul>
     <% @experiment.hypotheses.each do |hypothesis| %>
         <li>
-            <%= hypothesis.name %> ( <%= hypothesis.weight %> ) - <%= hypothesis.description %>
+            <% ratio = hypothesis.weight.to_f / @experiment.total_weight %>
+            <%= hypothesis.name %> ( <%= sprintf( "%0.0f\%", ratio * 100 ) %> ) - <%= hypothesis.description %>
         </li>
     <% end %>
 </ul>
