@@ -77,7 +77,7 @@ module SplitCat
       let( :experiment ) { FactoryGirl.create( :experiment_full ) }
 
       it 'generates SQL given an experiment' do
-        GoalSubject.send( :subject_count_sql, experiment ).should eql_file( 'spec/data/goal_subject_count_sql.sql' )
+        GoalSubject.send( :subject_count_sql, experiment ).should eql_file( 'spec/data/models/goal_subject_count_sql.sql' )
       end
     end
 

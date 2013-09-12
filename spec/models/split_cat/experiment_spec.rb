@@ -410,7 +410,7 @@ module SplitCat
       end
 
       it 'generates a CSV of experiment results' do
-        @experiment.to_csv.should eql_file( 'spec/data/experiment.csv' )
+        @experiment.to_csv.should eql_file( 'spec/data/models/experiment.csv' )
       end
 
     end

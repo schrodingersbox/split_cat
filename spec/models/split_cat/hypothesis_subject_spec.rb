@@ -72,7 +72,7 @@ module SplitCat
       let( :experiment ) { FactoryGirl.create( :experiment_full ) }
 
       it 'generates SQL given an experiment' do
-        HypothesisSubject.send( :subject_count_sql, experiment ).should eql_file( 'spec/data/hypothesis_subject_count_sql.sql' )
+        HypothesisSubject.send( :subject_count_sql, experiment ).should eql_file( 'spec/data/models/hypothesis_subject_count_sql.sql' )
       end
     end
 

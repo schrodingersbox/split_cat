@@ -6,8 +6,8 @@ module SplitCat
     validates_presence_of :name
     validates_uniqueness_of :name
 
-    has_many :hypotheses
-    has_many :goals
+    has_many :hypotheses, -> { order( :name ) }
+    has_many :goals, -> { order( :name ) }
     belongs_to :winner, :class_name => Hypothesis
 
     #############################################################################

@@ -1,79 +1,16 @@
 <p id="notice"><%= notice %></p>
 
 <h1>Experiment</h1>
-<table>
-  <tr>
-    <th>ID</th>
-    <td><%= @experiment.id %></td>
-  </tr>
-  <tr>
-    <th>name</th>
-    <td><%= @experiment.name %></td>
-  </tr>
-  <tr>
-    <th>description</th>
-    <td><%= @experiment.description %></td>
-  </tr>
-  <tr>
-    <th>created at</th>
-    <td><%= @experiment.created_at %></td>
-  </tr>
-</table>
+<%= experiment_info( @experiment ) %>
 
 <h2>Report</h2>
-<table border="1">
-  <tr>
-    <th></th>
-    <% @experiment.hypotheses.each do |hypothesis| %>
-        <th><%= hypothesis.name %></th>
-    <% end %>
-  </tr>
-
-  <tr>
-    <th>Total</th>
-    <% @experiment.hypotheses.each do |hypothesis| %>
-        <td><%= @experiment.hypothesis_counts[ hypothesis.name ] %> (100%)</td>
-    <% end %>
-  </tr>
-
-  <% @experiment.goals.each do |goal| %>
-    <tr>
-      <th><%= goal.name %></th>
-      <% @experiment.hypotheses.each do |hypothesis|
-           count = @experiment.goal_counts[ goal.name ][ hypothesis.name ]
-           ratio = @experiment.hypothesis_counts[ hypothesis.name ] || 0
-           ratio = count.to_f / ratio if ratio != 0
-      %>
-          <td>
-                <%= count %> (<%= sprintf( "%0.1f\%", ratio * 100) %>)
-          </td>
-      <% end %>
-    </tr>
-  <% end %>
-
-</table>
-<p>
-    <%= link_to 'Export as CSV', experiment_path( @experiment, :format => 'csv' ) %>
-</p>
+<%= experiment_report( @experiment ) %>
+<%= experiment_csv_link( @experiment ) %>
 
 <h2>Hypotheses</h2>
-<ul>
-    <% @experiment.hypotheses.each do |hypothesis| %>
-        <li>
-            <% ratio = hypothesis.weight.to_f / @experiment.total_weight %>
-            <%= hypothesis.name %> (<%= sprintf( "%0.0f\%", ratio * 100 ) %>) - <%= hypothesis.description %>
-        </li>
-    <% end %>
-</ul>
+<%= experiment_hypothesis_list( @experiment ) %>
 
 <h2>Goals</h2>
-<ul>
-    <% @experiment.goals.each do |goal| %>
-        <li>
-            <%= goal.name %> - <%= goal.description %>
-        </li>
-    <% end %>
-</ul>
-
+<%= experiment_goal_list( @experiment ) %>
 
 <%= link_to 'Edit', edit_experiment_path( @experiment ) %>

@@ -3,7 +3,7 @@ FactoryGirl.define do
   factory :experiment_empty, :class => SplitCat::Experiment do
     name 'test'
     description 'this is only a test'
-    created_at Time.now
+    created_at Time.at( 1378969738 )
 
     factory :experiment_full, :class => SplitCat::Experiment do
       after( :build ) do |experiment|
