@@ -384,6 +384,38 @@ module SplitCat
     end
 
     #############################################################################
+    # Experiment#to_csv
+
+    describe '#to_csv' do
+
+      before( :each ) do
+        @experiment = FactoryGirl.create( :experiment_full )
+        @subject = FactoryGirl.create( :subject_a )
+
+        @hypothesis = @experiment.hypotheses.first
+        @goal = @experiment.goals.first
+
+        HypothesisSubject.create(
+          :hypothesis_id => @hypothesis.id,
+          :subject_id => @subject.id,
+          :experiment_id => @experiment.id
+        )
+
+        GoalSubject.create(
+          :goal_id => @goal.id,
+          :hypothesis_id => @hypothesis.id,
+          :subject_id => @subject.id,
+          :experiment_id => @experiment.id
+        )
+      end
+
+      it 'generates a CSV of experiment results' do
+        @experiment.to_csv.should eql_file( 'spec/data/experiment.csv' )
+      end
+
+    end
+
+    #############################################################################
     # database
 
     describe 'database' do

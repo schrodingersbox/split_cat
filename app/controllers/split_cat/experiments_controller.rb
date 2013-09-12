@@ -8,6 +8,11 @@ module SplitCat
     end
 
     def show
+      respond_to do |format|
+        format.html
+        format.csv { render :text => @experiment.to_csv, :content_type => 'text/csv' }
+      end
+
     end
 
   private

@@ -14,6 +14,10 @@
     <th>description</th>
     <td><%= @experiment.description %></td>
   </tr>
+  <tr>
+    <th>created at</th>
+    <td><%= @experiment.created_at %></td>
+  </tr>
 </table>
 
 <h2>Report</h2>
@@ -48,6 +52,9 @@
   <% end %>
 
 </table>
+<p>
+    <%= link_to 'Export as CSV', experiment_path( @experiment, :format => 'csv' ) %>
+</p>
 
 <h2>Hypotheses</h2>
 <ul>
@@ -69,5 +76,4 @@
 </ul>
 
 
-<%= link_to 'Edit', edit_experiment_path( @experiment ) %> |
-<%= link_to 'Back', experiments_path %>
+<%= link_to 'Edit', edit_experiment_path( @experiment ) %>

@@ -40,6 +40,31 @@ describe SplitCat::ExperimentsController do
       expect( assigns( :experiment ) ).to be_present
     end
 
+    context 'formatting CSV' do
+
+      it 'renders CSV' do
+        get :show, :id => @experiment.id, :format => 'csv'
+        response.should be_success
+        response.content_type.should eql( 'text/csv' )
+      end
+
+      it 'turns the requested experiment into CSV' do
+        get :show, :id => @experiment.id, :format => 'csv'
+        response.body.should eql( @experiment.to_csv )
+      end
+
+    end
+
+    context 'formatting HTML' do
+
+      it 'renders HTML' do
+        get :show, :id => @experiment.id, :format => 'html'
+        response.should be_success
+        response.content_type.should eql( 'text/html' )
+      end
+
+    end
+
   end
 
 end

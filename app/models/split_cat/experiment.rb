@@ -1,3 +1,5 @@
+require 'csv'
+
 module SplitCat
   class Experiment < ActiveRecord::Base
 
@@ -137,13 +139,21 @@ module SplitCat
     #############################################################################
     # Experiment#to_csv
 
+    # Generates a CSV representing the experiment results
+    #  * header row of hypothesis names
+    #  * row of total subject count per hypothesis
+    #  * goal rows of subject count per hypothesis
+
     def to_csv
       CSV.generate do |csv|
-        csv << [ nil ] + @experiment.hypotheses.map { |h| h.name }
-        csv << [ 'total' ]
+        csv << [ nil ] + hypotheses.map { |h| h.name }
+        csv << [ 'total' ] + hypotheses.map { |h| hypothesis_counts[ h.name ] || 0 }
+
+        goals.each do |g|
+          csv << [ g.name ] + hypotheses.map { |h| goal_counts[ g.name ][ h.name ] || 0 }
+        end
       end
     end
-
 
   end
 end
