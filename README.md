@@ -16,16 +16,7 @@ This engine provides a framework for split testing.
 
 ## TODO
 
-  * Spec all the new code
-  * Only experiments in the config should be enabled
-  * Need to add structure checking again
-  * Need to update non-structure fields from config
-
-  * Modify experiment_full to include subject hypos and goals
-
-  * Add split test probability calculator?
-  * Flag for goals in funnel format and percentage along funnel, rather than of overall
-
+  * Spec all the new code - Experiment.factory
   * Show which experiments are active in index and show pages
 
   * Experiment pages & helpers
@@ -36,8 +27,14 @@ This engine provides a framework for split testing.
   * Test with large volume of test data
     * Optimize indexes
 
+  * Modify experiment_full to include subject hypos and goals
+
+  * Add split test probability calculator?
+  * Flag for goals in funnel format and percentage along funnel, rather than of overall
+
   * Cleanup
-      * Archive & delete experiments
+     * Update non-structure fields from config
+     * Archive & delete experiments
       * Configurable cookie TTL
       * Fill in all the table relationships
          * Add dependent destroys
@@ -45,9 +42,6 @@ This engine provides a framework for split testing.
       * Save config changes (weights, descs) through to DB
 
   * REST API
-
-  * Intermittent ArgumentError: A copy of SplitCat::Experiment has been removed from the module tree but is still active!
-      * lib files calling static model methods?
 
   * Document
     * Getting started
