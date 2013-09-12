@@ -1,5 +1,8 @@
 require 'split_cat/engine'
 require 'split_cat/config'
+require 'split_cat/a_p_i'
+
+include SplitCat::API
 
 module SplitCat
 

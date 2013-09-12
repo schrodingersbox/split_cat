@@ -24,29 +24,5 @@ module SplitCat
 
     end
 
-    #############################################################################
-    # Subject::token
-
-    describe '::token' do
-
-      before( :each ) do
-        @token = 'foobar'
-      end
-
-      it 'creates a new Subject and returns its token' do
-        subject = SplitCat::Subject.create
-        subject.should_receive( :token ).and_return( @token )
-        SplitCat::Subject.should_receive( :create ).and_return( subject )
-
-        Subject.token
-      end
-
-      it 'saves a provided token' do
-        Subject.delete_all
-        Subject.token( @token )
-        Subject.find_by_token( @token ).should be_present
-      end
-
-    end
   end
 end
