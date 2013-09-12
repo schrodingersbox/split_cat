@@ -4,7 +4,7 @@ module SplitCat
     before_action :set_experiment, :only => [ :show ]
 
     def index
-      @experiments = Experiment.all
+      @experiments = Experiment.order( 'id desc' )
     end
 
     def show
@@ -12,7 +12,6 @@ module SplitCat
         format.html
         format.csv { render :text => @experiment.to_csv, :content_type => 'text/csv' }
       end
-
     end
 
   private

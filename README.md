@@ -16,11 +16,12 @@ This engine provides a framework for split testing.
 
 ## TODO
 
-  * Spec all the new code - Experiment.factory
-  * Show which experiments are active in index and show pages
+  * experiments#index
+    * Add active / all filter to experiments#index
+    * Make helper for
 
   * Experiment pages & helpers
-    * Cookie tagging helper
+  * Cookie tagging helper
 
   * Figure out how to protect admin pages
 
@@ -33,6 +34,7 @@ This engine provides a framework for split testing.
   * Flag for goals in funnel format and percentage along funnel, rather than of overall
 
   * Cleanup
+     * Externalize strings
      * Update non-structure fields from config
      * Archive & delete experiments
       * Configurable cookie TTL

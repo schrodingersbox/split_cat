@@ -12,6 +12,10 @@ module SplitCat
     has_many :goals, -> { order( :name ) }
     belongs_to :winner, :class_name => Hypothesis
 
+    def active?
+      !!split_cat_factory( name )
+    end
+
     # Returns a memoized array of goal name => hypothesis_name => subject counts
 
     def goal_counts

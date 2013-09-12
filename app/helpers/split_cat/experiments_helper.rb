@@ -58,6 +58,7 @@ module SplitCat
         concat experiment_info_row( 'name', experiment.name )
         concat experiment_info_row( 'description', experiment.description )
         concat experiment_info_row( 'created at', experiment.created_at )
+        concat experiment_info_row( 'active', experiment.active? )
       end
     end
 
