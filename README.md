@@ -17,8 +17,7 @@ This engine provides a framework for split testing.
 ## TODO
 
   * experiments#index
-    * Add active / all filter to experiments#index
-    * Make helper for
+    * Add active / all filter
 
   * Experiment pages & helpers
   * Cookie tagging helper

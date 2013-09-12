@@ -111,5 +111,26 @@ module SplitCat
       end
     end
 
+    def experiment_table( experiments )
+      content_tag( :table, :border => 1 ) do
+        output = content_tag( :tr ) do
+          concat content_tag( :th, 'ID' )
+          concat content_tag( :th, 'Name' )
+          concat content_tag( :th, 'Active' )
+        end
+
+        experiments.each do |experiment|
+          output += content_tag( :tr ) do
+           concat content_tag( :td, experiment.id )
+           concat content_tag( :td, experiment.name )
+           concat content_tag( :td, experiment.active? )
+           concat content_tag( :td, link_to( 'Show', experiment ) )
+          end
+        end
+
+        output
+      end
+    end
+
   end
 end

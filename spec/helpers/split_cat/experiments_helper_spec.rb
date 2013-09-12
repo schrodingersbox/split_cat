@@ -112,4 +112,12 @@ describe SplitCat::ExperimentsHelper do
 
   end
 
+  describe '#experiment_table' do
+
+    it 'renders a total row in the report table' do
+      experiment_table( Experiment.all ).should eql_file( 'spec/data/helpers/experiment_table.html' )
+    end
+
+  end
+
 end
