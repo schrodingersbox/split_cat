@@ -1,22 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Dummy</title>
+  <title>SplitCat Dummy</title>
   <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
   <%= csrf_meta_tags %>
 </head>
 <body>
+    <div class="application_container">
+         <div class="application_nav">
+            <ul>
+              <li><b>SplitCat Dummy</b></li>
+              <li><a href="/">/home</a></li>
+              <li><a href="/split_cat">/split_cat</a></li>
+              <li><a href="/token">/token</a></li>
+              <li><a href="/goals">/goals</a></li>
+              <li><a href="/rails/info">/rails/info</a></li>
+            </ul>
+        </div>
 
-<ul>
-  <li><a href="/">/</a></li>
-  <li><a href="/rails/info">/rails/info</a></li>
-  <li><a href="/split_cat">/split_cat</a></li>
-  <li><a href="/token">/token</a></li>
-  <li><a href="/goals">/goals</a></li>
-</ul>
-
-<%= yield %>
+        <div class="application_body">
+            <%= yield %>
+        </div>
+    </div>
 
 </body>
 </html>

@@ -11,3 +11,30 @@
  *= require_self
  *= require_tree .
  */
+
+
+div.application_container {
+    width: 800px;
+    margin: 0 auto;
+}
+
+div.application_nav {
+    background-color: #dddddd;
+}
+
+div.application_nav ul {
+    list-style-type:none;
+    margin:0;
+    padding:0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+div.application_nav ul li {
+    display:inline;
+    padding-left: 10px;
+}
+
+div.application_body {
+
+}
