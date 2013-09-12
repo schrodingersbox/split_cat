@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
 
   def split_cat_token
     unless cookies[ :split_cat_token ]
-      cookies[ :split_cat_token ] = { :value => SplitCat.token, :expires => 10.years.from_now }
+      cookies[ :split_cat_token ] = { :value => SplitCat::Subject.token, :expires => 10.years.from_now }
     end
 
     @split_cat_token = cookies[ :split_cat_token ]

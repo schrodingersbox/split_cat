@@ -83,7 +83,6 @@ module SplitCat
       return hypotheses.first
     end
 
-
     #############################################################################
     # Experiment#record_goal
 
@@ -133,39 +132,54 @@ module SplitCat
       end
     end
 
-    def self.fetch( name )
-      if experiment = Experiment.includes( :goals, :hypotheses ).find_by_name( name )
-        return experiment
-      end
-
-      if experiment = SplitCat.config.experiment_factory( name )
-        unless experiment.save
-          experiment = nil
-          # TODO log an error
-        end
-      end
-
-      # TODO log nil return here
-
-      return experiment
-    end
+    #############################################################################
+    # Experiment::goal
 
     def self.goal( name, goal, token )
-      unless experiment = Experiment.fetch( name )
-        Rails.logger.error( "SplitCat.goal failed to find experiment: #{name}" )
+      unless experiment = Experiment.factory( name )
+        Rails.logger.error( "Experiment.goal failed to find experiment: #{name}" )
         return false
       end
+
       return experiment.record_goal( goal, token )
     end
 
+    #############################################################################
+    # Experiment::hypothesis
+
     def self.hypothesis( name, token )
-      unless experiment = Experiment.fetch( name )
-        Rails.logger.error( "SplitCat.hypothesis failed to find experiment: #{name}" )
+      unless experiment = Experiment.factory( name )
+        Rails.logger.error( "Experiment.hypothesis failed to find experiment: #{name}" )
         return nil
       end
 
       h = experiment.get_hypothesis( token )
       return h ? h.name.to_sym : nil
+    end
+
+    #############################################################################
+    # Experiment::factory
+
+    def self.factory( name )
+      unless template = SplitCat.config.experiment_factory( name )
+        Rails.logger.error( "Experiment.factory not configured for experiment: #{name}" )
+        return nil
+      end
+
+      if experiment = Experiment.includes( :goals, :hypotheses ).find_by_name( name )
+        unless template.same_structure?( experiment )
+          experiment = nil
+          Rails.logger.error( "Experiment.factory mismatched experiment: #{name}" )
+        end
+      else
+        if template.save
+          experiment = template
+        else
+          Rails.logger.error( "Experiment.factory failed to save experiment: #{name}" )
+        end
+      end
+
+      return experiment
     end
 
   end

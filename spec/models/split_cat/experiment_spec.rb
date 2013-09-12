@@ -369,7 +369,7 @@ module SplitCat
       end
 
       it 'logs an error if the experiment is not cached' do
-        Rails.logger.should_receive( :error ).with( 'SplitCat.goal failed to find experiment: does_not_exist' )
+        Rails.logger.should_receive( :error ).at_least(1).times
         Experiment.goal( :does_not_exist, :goal_a, 'secret' ).should be_false
       end
 
@@ -393,7 +393,7 @@ module SplitCat
       end
 
       it 'logs an error if the experiment is not cached' do
-        Rails.logger.should_receive( :error ).with( 'SplitCat.hypothesis failed to find experiment: does_not_exist' )
+        Rails.logger.should_receive( :error ).at_least(1).times
         Experiment.hypothesis( :does_not_exist, 'secret' ).should be_false
       end
 
@@ -416,7 +416,7 @@ module SplitCat
       @hypothesis = @experiment.hypotheses.first
       @token = 'secret'
 
-      Experiment.should_receive( :fetch ).and_return( @experiment )
+      Experiment.should_receive( :factory ).and_return( @experiment )
     end
 
   end
