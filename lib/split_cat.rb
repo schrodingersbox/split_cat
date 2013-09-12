@@ -29,8 +29,8 @@ module SplitCat
     return h ? h.name.to_sym : nil
   end
 
-  def self.token
-    SplitCat::Subject.create.token
+  def self.token( value = nil )
+    SplitCat::Subject.create( :token => value ).token
   end
 
 end

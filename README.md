@@ -16,13 +16,7 @@ This engine provides a framework for split testing.
 
 ## TODO
 
-   * CSV export
-
-  * Intermittent ArgumentError: A copy of SplitCat::Experiment has been removed from the module tree but is still active!
-      * lib files calling static model methods?
-
   * Admin pages & helpers
-    * Archive & delete experiments
 
   * Experiment pages & helpers
     * Cookie tagging helper
@@ -33,13 +27,17 @@ This engine provides a framework for split testing.
     * Optimize indexes
 
   * Cleanup
+      * Archive & delete experiments
       * Configurable cookie TTL
       * Fill in all the table relationships
-        * Add dependent destroys
+         * Add dependent destroys
       * Change to hash with indifferent access
       * Save config changes (weights, descs) through to DB
 
   * REST API
+
+  * Intermittent ArgumentError: A copy of SplitCat::Experiment has been removed from the module tree but is still active!
+      * lib files calling static model methods?
 
   * Document
     * Getting started
@@ -50,6 +48,7 @@ This engine provides a framework for split testing.
         * A user can have many goals per-experiment
     * How to
         * Create an experiment
+        * Create or set a token
         * Run an experiment
         * Evaluate an experiment
         * Add user_id to subjects
