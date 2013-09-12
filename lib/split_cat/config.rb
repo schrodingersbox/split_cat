@@ -5,24 +5,43 @@ module SplitCat
   class Config
     include Singleton
 
+    attr_reader :experiments
+
     def initialize
-      @experiments = {}
+      @experiments = HashWithIndifferentAccess.new
+      @name = nil
     end
 
     def experiment( name, description = nil )
-      begin
-        yield config = Experiment.new( :name => name, :description => description )
-        @experiments[ name.to_sym ] = config
-      rescue Exception => e
-        Rails.logger.error( "SplitCat.Config.experiment failed to create #{name}:" + e.to_s  )
-      end
+      @name =  name.to_sym
+      @experiments[ @name ] = {
+          :experiment => {
+              :name => name,
+              :description => description
+          },
+          :goals => [],
+          :hypotheses => []
+      }
+
+      yield self
     end
 
-    def experiments
-      @experiments.each_pair do|key,experiment|
-        @experiments[ key ] = experiment.lookup if experiment && experiment.new_record?
-      end
-      return @experiments
+    def hypothesis( name, weight, description = nil )
+      @experiments[ @name ][ :hypotheses ] << { :name => name, :weight => weight, :description => description }
+    end
+
+    def goal( name, description = nil )
+      @experiments[ @name ][ :goals ] << { :name => name, :description => description }
+    end
+
+    def experiment_factory( name )
+      return nil unless data = @experiments[ name ]
+
+      experiment = Experiment.new( data[ :experiment ] )
+      data[ :hypotheses ].each { |h| experiment.hypotheses << Hypothesis.new( h ) }
+      data[ :goals ].each { |g| experiment.goals << Goal.new( g ) }
+
+      return experiment
     end
 
   end

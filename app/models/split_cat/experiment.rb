@@ -1,6 +1,8 @@
 require 'csv'
 
 module SplitCat
+
+
   class Experiment < ActiveRecord::Base
 
     validates_presence_of :name
@@ -9,17 +11,6 @@ module SplitCat
     has_many :hypotheses, -> { order( :name ) }
     has_many :goals, -> { order( :name ) }
     belongs_to :winner, :class_name => Hypothesis
-
-    #############################################################################
-    # simple accessors
-
-    def add_goal( name, description = nil )
-      goals << Goal.new( :name => name, :description => description )
-    end
-
-    def add_hypothesis( name, weight, description = nil )
-      hypotheses << Hypothesis.new( :weight => weight, :name => name, :description => description )
-    end
 
     # Returns a memoized array of goal name => hypothesis_name => subject counts
 
@@ -114,19 +105,6 @@ module SplitCat
       return true
     end
 
-    #############################################################################
-    # Experiment#lookup
-
-    def lookup
-      return self unless new_record?
-
-      unless db = Experiment.includes( :goals, :hypotheses ).find_by_name( name )
-        ( db = self ).save!
-      end
-
-      return same_structure?( db )
-    end
-
     # Returns true if the experiment has the same name, goals, and hypotheses as this one
 
     def same_structure?( experiment )
@@ -153,6 +131,41 @@ module SplitCat
           csv << [ g.name ] + hypotheses.map { |h| goal_counts[ g.name ][ h.name ] || 0 }
         end
       end
+    end
+
+    def self.fetch( name )
+      if experiment = Experiment.includes( :goals, :hypotheses ).find_by_name( name )
+        return experiment
+      end
+
+      if experiment = SplitCat.config.experiment_factory( name )
+        unless experiment.save
+          experiment = nil
+          # TODO log an error
+        end
+      end
+
+      # TODO log nil return here
+
+      return experiment
+    end
+
+    def self.goal( name, goal, token )
+      unless experiment = Experiment.fetch( name )
+        Rails.logger.error( "SplitCat.goal failed to find experiment: #{name}" )
+        return false
+      end
+      return experiment.record_goal( goal, token )
+    end
+
+    def self.hypothesis( name, token )
+      unless experiment = Experiment.fetch( name )
+        Rails.logger.error( "SplitCat.hypothesis failed to find experiment: #{name}" )
+        return nil
+      end
+
+      h = experiment.get_hypothesis( token )
+      return h ? h.name.to_sym : nil
     end
 
   end

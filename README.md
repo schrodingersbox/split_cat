@@ -16,10 +16,17 @@ This engine provides a framework for split testing.
 
 ## TODO
 
+  * Spec all the new code
+  * Only experiments in the config should be enabled
+  * Need to add structure checking again
+  * Need to update non-structure fields from config
+
   * Modify experiment_full to include subject hypos and goals
 
   * Add split test probability calculator?
   * Flag for goals in funnel format and percentage along funnel, rather than of overall
+
+  * Show which experiments are active in index and show pages
 
   * Experiment pages & helpers
     * Cookie tagging helper

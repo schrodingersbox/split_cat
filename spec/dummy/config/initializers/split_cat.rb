@@ -1,17 +1,20 @@
+HOMEPAGE_EXPERIMENT = :homepage_2
+AD_EXPERIMENT = :ad_2
+
 SplitCat.configure do |config|
 
-  config.experiment( :homepage, 'test of homepage behavior' ) do |e|
-    e.add_hypothesis( :a, 50, 'current behavior' )
-    e.add_hypothesis( :b, 50, 'awesome new behavior' )
-    e.add_goal( :clicked, 'user clicked the button' )
+  config.experiment( HOMEPAGE_EXPERIMENT, 'test of homepage behavior' ) do |e|
+    e.hypothesis( :a, 50, 'current behavior' )
+    e.hypothesis( :b, 50, 'awesome new behavior' )
+    e.goal( :clicked, 'user clicked the button' )
   end
 
-  config.experiment( :ad, 'test of the ad unit' ) do |e|
-    e.add_hypothesis( :a, 25, 'current behavior' )
-    e.add_hypothesis( :b, 25, 'smaller ad' )
-    e.add_hypothesis( :c, 25, 'larger ad' )
-    e.add_hypothesis( :d, 25, 'banner ad' )
-    e.add_goal( :clicked, 'user clicked the ad' )
+  config.experiment( AD_EXPERIMENT, 'test of the ad unit' ) do |e|
+    e.hypothesis( :a, 25, 'current behavior' )
+    e.hypothesis( :b, 25, 'smaller ad' )
+    e.hypothesis( :c, 25, 'larger ad' )
+    e.hypothesis( :d, 25, 'banner ad' )
+    e.goal( :clicked, 'user clicked the ad' )
   end
 
 end

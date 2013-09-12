@@ -8,6 +8,21 @@ module SplitCat
     let( :goal ) { FactoryGirl.build( :goal_a ) }
     let( :hypothesis ) { FactoryGirl.build( :hypothesis_a ) }
 
+    describe 'database' do
+
+      it 'has columns' do
+        should have_db_column( :id ).of_type( :integer )
+        should have_db_column( :name ).of_type( :string )
+        should have_db_column( :description ).of_type( :string )
+        should have_db_column( :winner_id ).of_type( :integer )
+        should have_db_column( :created_at ).of_type( :datetime )
+      end
+
+      it 'has a  unique index on name' do
+        should have_db_index( :name ).unique(true)
+      end
+    end
+
     describe 'associations' do
 
       it 'has many goals' do
@@ -37,41 +52,6 @@ module SplitCat
     end
 
     context 'instance methods' do
-
-      #############################################################################
-      # Experiment#add_goal
-
-      describe '#add_goal' do
-
-        it 'adds a goal to the experiment' do
-          goals = experiment_empty.goals
-          goals.should be_empty
-          experiment_empty.add_goal( goal.name, goal.description )
-
-          goals.size.should eql( 1 )
-          goals.first.name.should eql( goal.name )
-          goals.first.description.should eql( goal.description )
-        end
-
-      end
-
-      #############################################################################
-      # Experiment#add_hypothesis
-
-      describe '#add_hypothesis' do
-
-        it 'adds a hypothesis to the experiment' do
-          hypotheses = experiment_empty.hypotheses
-          hypotheses.should be_empty
-          experiment_empty.add_hypothesis( hypothesis.name, hypothesis.weight, hypothesis.description )
-
-          hypotheses.size.should eql( 1 )
-          hypotheses.first.name.should eql( hypothesis.name )
-          hypotheses.first.weight.should eql( hypothesis.weight )
-          hypotheses.first.description.should eql( hypothesis.description )
-        end
-
-      end
 
       #############################################################################
       # Experiment#choose_hypothesis
@@ -229,42 +209,6 @@ module SplitCat
       end
 
       #############################################################################
-      # Experiment#lookup
-
-      describe '#lookup' do
-
-        before( :each ) do
-          @expected = FactoryGirl.create( :experiment_full )
-          @experiment = FactoryGirl.build( :experiment_full )
-        end
-
-        it 'returns itself if its not a new record' do
-          @expected.new_record?.should be_false
-          @expected.lookup.should be( @expected )
-        end
-
-        it 'saves to db if an experiment with this name is not already there' do
-          @expected.destroy
-
-          Experiment.count.should eql( 0 )
-          @experiment.lookup
-          Experiment.count.should eql( 1 )
-        end
-
-        it 'returns nil if the in-memory and in-db structures do not match' do
-          @experiment.should_receive( :same_structure? ).and_return( nil )
-          @experiment.lookup.should be_nil
-        end
-
-        it 'returns the copy from the db' do
-          @experiment.id.should be_nil
-          @experiment.lookup.id.should eql( @expected.id )
-        end
-
-      end
-
-
-      #############################################################################
       # Experiment#record_goal
 
       describe '#record_goal' do
@@ -315,123 +259,164 @@ module SplitCat
 
       end
 
+      #############################################################################
+      # Experiment#same_structure?
+
+      describe '#same_structure?' do
+
+        let( :experiment ) { FactoryGirl.create( :experiment_full ) }
+        let( :test ) { FactoryGirl.build( :experiment_full ) }
+
+        def same_structure_should_be( bool )
+          experiment.same_structure?( test ).should be( bool ? test : nil )
+          test.same_structure?( experiment ).should be( bool ? experiment : nil )
+        end
+
+        it 'returns true if the experiment, goals, and hypotheses match significantly' do
+          same_structure_should_be( true )
+        end
+
+        it 'returns false if there is a mismatch in the experiment name' do
+          test.name = experiment.name.reverse
+          same_structure_should_be( false )
+        end
+
+        it 'returns false if there is a mismatch in the number of goals' do
+          test.goals.delete( test.goals.first )
+          same_structure_should_be( false )
+        end
+
+        it 'returns false if there is a mismatch in the name of goals' do
+          goal = test.goals.first
+          goal.name = goal.name.reverse
+          same_structure_should_be( false )
+        end
+
+        it 'returns false if there is a mismatch in the number of hypotheses' do
+          test.hypotheses.delete( test.hypotheses.first )
+          same_structure_should_be( false )
+        end
+
+        it 'returns false if there is a mismatch in the name of hypotheses' do
+          hypothesis = test.hypotheses.first
+          hypothesis.name = hypothesis.name.reverse
+          same_structure_should_be( false )
+        end
+      end
+
+      #############################################################################
+      # Experiment#total_weight
+
+      describe '#total_weight' do
+
+        let( :experiment ) { FactoryGirl.create( :experiment_full ) }
+
+        it 'returns the sum of hypothesis weights' do
+          expected = experiment.hypotheses.inject( 0 ) { |sum,h| sum + h.weight }
+          expected.should_not eql( 0 )
+
+          experiment.total_weight.should eql( expected )
+        end
+
+        it 'memoizes the result' do
+          experiment.hypotheses.should_receive( :inject ).once.with( 0 ).and_return( 727 )
+          experiment.total_weight
+        end
+
+      end
+
+      #############################################################################
+      # Experiment#to_csv
+
+      describe '#to_csv' do
+
+        before( :each ) do
+          @experiment = FactoryGirl.create( :experiment_full )
+          @subject = FactoryGirl.create( :subject_a )
+
+          @hypothesis = @experiment.hypotheses.first
+          @goal = @experiment.goals.first
+
+          HypothesisSubject.create(
+            :hypothesis_id => @hypothesis.id,
+            :subject_id => @subject.id,
+            :experiment_id => @experiment.id
+          )
+
+          GoalSubject.create(
+            :goal_id => @goal.id,
+            :hypothesis_id => @hypothesis.id,
+            :subject_id => @subject.id,
+            :experiment_id => @experiment.id
+          )
+        end
+
+        it 'generates a CSV of experiment results' do
+          @experiment.to_csv.should eql_file( 'spec/data/models/experiment.csv' )
+        end
+
+      end
+
     end
 
     #############################################################################
-    # Experiment#same_structure?
+    # Experiment::goal
 
-    describe '#same_structure?' do
+    describe '::goal' do
 
-      let( :experiment ) { FactoryGirl.create( :experiment_full ) }
-      let( :test ) { FactoryGirl.build( :experiment_full ) }
-
-      def same_structure_should_be( bool )
-        experiment.same_structure?( test ).should be( bool ? test : nil )
-        test.same_structure?( experiment ).should be( bool ? experiment : nil )
+      it 'returns false if the experiment is not cached' do
+        Experiment.goal( :does_not_exist, :goal_a, 'secret' ).should be_false
       end
 
-      it 'returns true if the experiment, goals, and hypotheses match significantly' do
-        same_structure_should_be( true )
+      it 'logs an error if the experiment is not cached' do
+        Rails.logger.should_receive( :error ).with( 'SplitCat.goal failed to find experiment: does_not_exist' )
+        Experiment.goal( :does_not_exist, :goal_a, 'secret' ).should be_false
       end
 
-      it 'returns false if there is a mismatch in the experiment name' do
-        test.name = experiment.name.reverse
-        same_structure_should_be( false )
-      end
+      it 'calls record_goal on the experiment' do
+        setup_experiments
+        goal = :test
 
-      it 'returns false if there is a mismatch in the number of goals' do
-        test.goals.delete( test.goals.first )
-        same_structure_should_be( false )
-      end
-
-      it 'returns false if there is a mismatch in the name of goals' do
-        goal = test.goals.first
-        goal.name = goal.name.reverse
-        same_structure_should_be( false )
-      end
-
-      it 'returns false if there is a mismatch in the number of hypotheses' do
-        test.hypotheses.delete( test.hypotheses.first )
-        same_structure_should_be( false )
-      end
-
-      it 'returns false if there is a mismatch in the name of hypotheses' do
-        hypothesis = test.hypotheses.first
-        hypothesis.name = hypothesis.name.reverse
-        same_structure_should_be( false )
-      end
-    end
-
-    #############################################################################
-    # Experiment#total_weight
-
-    describe '#total_weight' do
-
-      let( :experiment ) { FactoryGirl.create( :experiment_full ) }
-
-      it 'returns the sum of hypothesis weights' do
-        expected = experiment.hypotheses.inject( 0 ) { |sum,h| sum + h.weight }
-        expected.should_not eql( 0 )
-
-        experiment.total_weight.should eql( expected )
-      end
-
-      it 'memoizes the result' do
-        experiment.hypotheses.should_receive( :inject ).once.with( 0 ).and_return( 727 )
-        experiment.total_weight
+        @experiment.should_receive( :record_goal ).with( goal, @token ).and_return( true )
+        Experiment.goal( @experiment.name.to_sym, goal, @token ).should be_true
       end
 
     end
 
     #############################################################################
-    # Experiment#to_csv
+    # Experiment::hypothesis
 
-    describe '#to_csv' do
+    describe '::hypothesis' do
 
-      before( :each ) do
-        @experiment = FactoryGirl.create( :experiment_full )
-        @subject = FactoryGirl.create( :subject_a )
-
-        @hypothesis = @experiment.hypotheses.first
-        @goal = @experiment.goals.first
-
-        HypothesisSubject.create(
-          :hypothesis_id => @hypothesis.id,
-          :subject_id => @subject.id,
-          :experiment_id => @experiment.id
-        )
-
-        GoalSubject.create(
-          :goal_id => @goal.id,
-          :hypothesis_id => @hypothesis.id,
-          :subject_id => @subject.id,
-          :experiment_id => @experiment.id
-        )
+      it 'returns false if the experiment is not cached' do
+        Experiment.hypothesis( :does_not_exist, 'secret' ).should be_nil
       end
 
-      it 'generates a CSV of experiment results' do
-        @experiment.to_csv.should eql_file( 'spec/data/models/experiment.csv' )
+      it 'logs an error if the experiment is not cached' do
+        Rails.logger.should_receive( :error ).with( 'SplitCat.hypothesis failed to find experiment: does_not_exist' )
+        Experiment.hypothesis( :does_not_exist, 'secret' ).should be_false
+      end
+
+      it 'calls get_hypothesis on the experiment' do
+        setup_experiments
+        @experiment.should_receive( :get_hypothesis ).with( @token ).and_return( @hypothesis )
+
+        result = Experiment.hypothesis( @experiment.name.to_sym, @token )
+        @experiment.hypothesis_hash[ result ].should be_present
       end
 
     end
 
     #############################################################################
-    # database
+    # setup_experiments
 
-    describe 'database' do
+    def setup_experiments
+      @experiment = FactoryGirl.create( :experiment_full )
+      @goal = @experiment.goals.first.name.to_sym
+      @hypothesis = @experiment.hypotheses.first
+      @token = 'secret'
 
-      it 'has columns' do
-        should have_db_column( :id ).of_type( :integer )
-        should have_db_column( :name ).of_type( :string )
-        should have_db_column( :description ).of_type( :string )
-        should have_db_column( :winner_id ).of_type( :integer )
-        should have_db_column( :created_at ).of_type( :datetime )
-      end
-
-      it 'has a  unique index on name' do
-        should have_db_index( :name ).unique(true)
-      end
-
+      Experiment.should_receive( :fetch ).and_return( @experiment )
     end
 
   end

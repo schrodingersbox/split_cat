@@ -5,14 +5,15 @@ include SplitCat
 describe SplitCat::Config do
 
   let( :config ) { SplitCat::Config.instance }
-  let( :empty ) { FactoryGirl.build( :experiment_empty ) }
-  let( :full ) { FactoryGirl.build( :experiment_full ) }
 
-  def setup_experiment
-    config.experiment( full.name, full.description ) do |e|
-      full.goals.each { |g| e.add_goal( g.name, g.description ) }
-      full.hypotheses.each { |h| e.add_hypothesis( h.name, h.description, h.weight ) }
-    end
+  before( :each ) do
+    @name = :test
+    @description = 'this is only a test'
+    @weight = 727
+    @hypothesis = :hypothesis_a
+    @goal = :goal_a
+
+    config.experiments.clear
   end
 
   it 'is a singleton' do
@@ -24,9 +25,9 @@ describe SplitCat::Config do
 
   describe '#initialize' do
 
-    it 'initializes the experiment cache' do
+    it 'initializes the experiment config hash' do
       config.send( :initialize )
-      config.experiments.should eql( {} )
+      config.experiments.should be_an_instance_of( HashWithIndifferentAccess )
     end
 
   end
@@ -36,59 +37,90 @@ describe SplitCat::Config do
 
   describe '#experiment' do
 
-    it 'yields a new initialized experiment' do
-      config.experiment( empty.name, empty.description ) do |yielded|
-        yielded.should be_new_record
-        yielded.should be_an_instance_of( Experiment )
-        yielded.name.should eql( empty.name )
-        yielded.description.should eql( empty.description )
+    it 'creates an entry in the experiments config hash' do
+      config.experiment( @name, @description ) {}
+
+      result = config.experiments[ @name ]
+      result.should be_present
+      result[ :experiment ][ :name ].should eql( @name )
+      result[ :experiment ][ :description ].should eql( @description )
+      result[ :goals ].should eql( [] )
+      result[ :hypotheses ].should eql( [] )
+    end
+
+    it 'yields itself' do
+      config.experiment( @name, @description ) do |yielded|
+        yielded.should be( config )
       end
-    end
-
-    it 'stores the new experiment in the cache' do
-      experiments = config.instance_variable_get( :@experiments )
-      experiments.clear
-      config.experiment( empty.name.to_sym, empty.description ) {}
-      experiments.keys.size.should eql( 1 )
-    end
-
-    it 'captures and logs exceptions' do
-      Rails.logger.should_receive( :error )
-      config.experiment( empty.name.to_sym, empty.description )
     end
 
   end
 
   #############################################################################
-  # Config#experiments
+  # Config#hypothesis
 
-  describe '#experiments' do
+  describe '#hypothesis' do
 
-    it 'returns the experiment cache' do
-      setup_experiment
-      config.experiments.should be_a_kind_of( Hash )
-      config.experiments[ full.name.to_sym ].should be_present
+    it 'appends a hypothesis on the current experiment' do
+      config.experiment( @name, @description ) do |c|
+        c.hypothesis( @hypothesis, @weight, @description )
+      end
+
+      result = config.experiments[ @name ][ :hypotheses ].first
+      result.should be_present
+      result[ :name ].should eql( @hypothesis )
+      result[ :weight ].should eql( @weight )
+      result[ :description ].should eql( @description )
     end
 
-    it 'calls lookup on every new experiment in the cache' do
-      config.experiments.clear
-      full
+  end
 
-      Experiment.should_receive( :new ).and_return( full )
-      full.should_receive( :lookup ).and_return( nil )
-      setup_experiment
-      config.experiments
+  #############################################################################
+  # Config#goal
+
+  describe '#goal' do
+
+    it 'appends a goal on the current experiment' do
+      config.experiment( @name, @description ) do |c|
+        c.goal( @goal, @description )
+      end
+
+      result = config.experiments[ @name ][ :goals ].first
+      result.should be_present
+      result[ :name ].should eql( @goal )
+      result[ :description ].should eql( @description )
     end
 
-    it 'only looks up new records' do
-      config.experiments.clear
-      full
+  end
 
-      Experiment.should_receive( :new ).and_return( full )
-      full.stub( :new_record? ).and_return( false )
-      full.should_not_receive( :lookup )
-      setup_experiment
-      config.experiments
+  #############################################################################
+  # Config#experiment_factory
+
+  describe '#experiment_factory' do
+
+    it 'returns nil if the experiment is not configured' do
+      config.experiment_factory( :does_not_exist ).should be_nil
+    end
+
+    it 'creates a new experiment from the config values' do
+      config.experiment( @name, @description ) do |c|
+        c.goal( @goal, @description )
+        c.hypothesis( @hypothesis, @weight, @description )
+      end
+
+      experiment = config.experiment_factory( @name )
+      hypothesis = experiment.hypotheses.first
+      goal = experiment.goals.first
+
+      experiment.name.should eql( @name )
+      experiment.description.should eql( @description )
+
+      hypothesis.name.should eql( @hypothesis )
+      hypothesis.description.should eql( @description )
+      hypothesis.weight.should eql( @weight )
+
+      goal.name.should eql( @goal )
+      goal.description.should eql( @description )
     end
 
   end

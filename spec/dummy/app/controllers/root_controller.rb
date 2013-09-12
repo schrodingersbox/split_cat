@@ -1,8 +1,8 @@
 class RootController < ApplicationController
 
   def index
-    @homepage_hypothesis = SplitCat.hypothesis( :homepage, @split_cat_token )
-    @ad_hypothesis = SplitCat.hypothesis( :ad, @split_cat_token )
+    @homepage_hypothesis = SplitCat::Experiment.hypothesis( HOMEPAGE_EXPERIMENT, @split_cat_token )
+    @ad_hypothesis = SplitCat::Experiment.hypothesis( AD_EXPERIMENT, @split_cat_token )
   end
 
   def token
@@ -11,8 +11,8 @@ class RootController < ApplicationController
   end
 
   def goals
-    SplitCat.goal( :homepage, :clicked, @split_cat_token )
-    SplitCat.goal( :ad, :clicked, @split_cat_token )
+    SplitCat::Experiment.goal( HOMEPAGE_EXPERIMENT, :clicked, @split_cat_token )
+    SplitCat::Experiment.goal( AD_EXPERIMENT, :clicked, @split_cat_token )
     redirect_to :action => :index
   end
 
