@@ -28,19 +28,16 @@
   <tr>
     <th>Total</th>
     <% @experiment.hypotheses.each do |hypothesis| %>
-        <td><%= @experiment.hypothesis_counts[ hypothesis.name.to_sym ] %> (100%)</td>
+        <td><%= @experiment.hypothesis_counts[ hypothesis.name ] %> (100%)</td>
     <% end %>
   </tr>
 
-  <% @experiment.goals.each do |goal|
-       goal_name = goal.name.to_sym
-  %>
+  <% @experiment.goals.each do |goal| %>
     <tr>
       <th><%= goal.name %></th>
       <% @experiment.hypotheses.each do |hypothesis|
-           hypothesis_name = hypothesis.name.to_sym
-           count = @experiment.goal_counts[ goal_name ][ hypothesis_name ]
-           ratio = @experiment.hypothesis_counts[ hypothesis_name ] || 0
+           count = @experiment.goal_counts[ goal.name ][ hypothesis.name ]
+           ratio = @experiment.hypothesis_counts[ hypothesis.name ] || 0
            ratio = count.to_f / ratio if ratio != 0
       %>
           <td>

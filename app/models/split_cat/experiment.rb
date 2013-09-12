@@ -28,8 +28,12 @@ module SplitCat
     # Return a memoized hash of goal name => goals
 
     def goal_hash
-       @goal_hash ||= {}.tap { |hash| goals.map { |g| hash[ g.name.to_sym ] = g } }
-    end
+      unless @goal_hash
+        @goal_hash = HashWithIndifferentAccess.new
+        goals.map { |goal| @goal_hash[ goal.name ] = goal }
+      end
+      return @goal_hash
+     end
 
     # Returns a memoized array of hypothesis name => subject counts
 
@@ -40,7 +44,11 @@ module SplitCat
     # Return a memoized hash of hypothesis name => hypotheses
 
     def hypothesis_hash
-      @hypothesis_hash ||= {}.tap { |hash| hypotheses.map { |h| hash[ h.name.to_sym ] = h } }
+      unless @hypothesis_hash
+        @hypothesis_hash = HashWithIndifferentAccess.new
+        hypotheses.map { |hypothesis| @hypothesis_hash[ hypothesis.name ] = hypothesis }
+      end
+      return @hypothesis_hash
     end
 
     # Returns a memoized sum of hypothesis weights
@@ -94,7 +102,7 @@ module SplitCat
     def record_goal( goal, token )
       return true if winner_id
 
-      return false unless goal = goal_hash[ goal.to_sym ]
+      return false unless goal = goal_hash[ goal ]
       return false unless subject = Subject.find_by_token( token )
 
       return true unless join = HypothesisSubject.find_by_experiment_id_and_subject_id( id, subject.id )
@@ -132,7 +140,7 @@ module SplitCat
     def to_csv
       CSV.generate do |csv|
         csv << [ nil ] + @experiment.hypotheses.map { |h| h.name }
-
+        csv << [ 'total' ]
       end
     end
 

@@ -29,30 +29,42 @@ module SplitCat
       let( :experiment ) { FactoryGirl.create( :experiment_full ) }
       let( :subject )    { FactoryGirl.create( :subject_a ) }
 
-      it 'returns a hash of hypothesis name => count' do
-        hypothesis = experiment.hypotheses.first
-        goal = experiment.goals.first
+      before( :each ) do
+        @hypothesis = experiment.hypotheses.first
+        @goal = experiment.goals.first
 
         GoalSubject.create(
-            :goal_id => goal.id,
-            :hypothesis_id => hypothesis.id,
+            :goal_id => @goal.id,
+            :hypothesis_id => @hypothesis.id,
             :subject_id => subject.id,
             :experiment_id => experiment.id )
 
+      end
+
+      it 'returns a HashWithIndifferentAccess' do
+        counts =  GoalSubject.subject_counts( experiment )
+        counts.should be_an_instance_of( HashWithIndifferentAccess )
+        counts[ @goal.name ].should be_an_instance_of( HashWithIndifferentAccess )
+      end
+
+      it 'returns a hash of hypothesis name => count' do
         counts = GoalSubject.subject_counts( experiment )
-        counts.should be_an_instance_of( Hash )
-        counts[ goal.name.to_sym ][ hypothesis.name.to_sym ].should eql( 1 )
+        counts[ @goal.name ][ @hypothesis.name ].should eql( 1 )
       end
 
       it 'includes goals with no subjects in db' do
-        goal = experiment.goals.first
+        GoalSubject.delete_all
         counts = GoalSubject.subject_counts( experiment )
 
         counts.size.should eql( experiment.goals.size )
         experiment.goals.each do |goal|
-          counts[ goal.name.to_sym ].should eql( {} )
+          counts[ goal.name ].should eql( {} )
         end
+      end
 
+      it 'returns an empty hash if the query fails' do
+        ActiveRecord::Base.connection.should_receive( :execute ).and_return( nil )
+        GoalSubject.subject_counts( experiment ).should be_empty
       end
 
     end

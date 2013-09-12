@@ -22,7 +22,6 @@ This engine provides a framework for split testing.
       * lib files calling static model methods?
 
   * Admin pages & helpers
-    * Add dependent destroys
     * Archive & delete experiments
 
   * Experiment pages & helpers
@@ -36,6 +35,7 @@ This engine provides a framework for split testing.
   * Cleanup
       * Configurable cookie TTL
       * Fill in all the table relationships
+        * Add dependent destroys
       * Change to hash with indifferent access
       * Save config changes (weights, descs) through to DB
 

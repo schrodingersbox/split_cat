@@ -27,26 +27,39 @@ module SplitCat
       let( :experiment ) { FactoryGirl.create( :experiment_full ) }
       let( :subject )    { FactoryGirl.create( :subject_a ) }
 
-      it 'returns a hash of hypothesis name => count' do
-        hypothesis = experiment.hypotheses.first
+      before( :each ) do
+        @hypothesis = experiment.hypotheses.first
 
         HypothesisSubject.create(
-            :hypothesis_id => hypothesis.id,
+            :hypothesis_id => @hypothesis.id,
             :subject_id => subject.id,
             :experiment_id => experiment.id )
 
+      end
+
+      it 'returns a HashWithIndifferentAccess' do
+        counts =  HypothesisSubject.subject_counts( experiment )
+        counts.should be_an_instance_of( HashWithIndifferentAccess )
+      end
+
+      it 'returns a hash of hypothesis name => count' do
         counts = HypothesisSubject.subject_counts( experiment )
-        counts.should be_an_instance_of( Hash )
-        counts[ hypothesis.name.to_sym ].should eql( 1 )
+        counts[ @hypothesis.name ].should eql( 1 )
       end
 
       it 'includes hypotheses with no subjects in db' do
+        HypothesisSubject.delete_all
         counts = HypothesisSubject.subject_counts( experiment )
 
         counts.size.should eql( experiment.hypotheses.size )
         experiment.hypotheses.each do |hypothesis|
           counts[ hypothesis.name.to_sym ].should eql( 0 )
         end
+      end
+
+      it 'returns an empty hash if the query fails' do
+        ActiveRecord::Base.connection.should_receive( :execute ).and_return( nil )
+        HypothesisSubject.subject_counts( experiment ).should be_empty
       end
 
     end

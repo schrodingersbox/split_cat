@@ -4,12 +4,12 @@ module SplitCat
     # Returns a hash of goal name => hypothesis name => count
 
     def self.subject_counts( experiment )
-      counts = {}
+      counts = HashWithIndifferentAccess.new
 
       # Run the query
 
       sql = subject_count_sql( experiment )
-      return {} unless result = ActiveRecord::Base.connection.execute( sql )
+      return counts unless result = ActiveRecord::Base.connection.execute( sql )
 
       # Load the results into a hash of goal id => hypothesis id => count
 
@@ -25,13 +25,11 @@ module SplitCat
       # Translate ID keys to name symbols
 
       experiment.goals.each do |goal|
-        goal_name = goal.name.to_sym
-
-        unless hash = counts[ goal_name ] = counts.delete( goal.id )
-          counts[ goal_name ] = {}
+        unless hash = counts[ goal.name ] = counts.delete( goal.id )
+          counts[ goal.name ] = HashWithIndifferentAccess.new
         else
           experiment.hypotheses.each do |h|
-            hash[ h.name.to_sym ] = hash.delete( h.id )
+            hash[ h.name ] = hash.delete( h.id )
           end
         end
       end

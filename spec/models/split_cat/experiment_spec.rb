@@ -170,10 +170,15 @@ module SplitCat
 
       describe '#goal_hash' do
 
+        it 'returns a HashWithIndifferentAccess' do
+          experiment_full.goal_hash.should be_an_instance_of( HashWithIndifferentAccess )
+        end
+
         it 'builds a hash of goals' do
           goals = experiment_full.goal_hash
           goals.size.should > 0
           goals.size.should eql( experiment_full.goals.size )
+          experiment_full.goals.each { |g| goals[ g.name ].should be_present }
           experiment_full.goals.each { |g| goals[ g.name.to_sym ].should be_present }
         end
 
@@ -204,10 +209,15 @@ module SplitCat
 
       describe '#hypothesis_hash' do
 
+        it 'returns a HashWithIndifferentAccess' do
+          experiment_full.hypothesis_hash.should be_an_instance_of( HashWithIndifferentAccess )
+        end
+
         it 'builds a hash of hypotheses' do
           hypotheses = experiment_full.hypothesis_hash
           hypotheses.size.should > 0
           hypotheses.size.should eql( experiment_full.hypotheses.size )
+          experiment_full.hypotheses.each { |h| hypotheses[ h.name ].should be_present }
           experiment_full.hypotheses.each { |h| hypotheses[ h.name.to_sym ].should be_present }
         end
 
