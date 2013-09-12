@@ -18,8 +18,8 @@ This engine provides a framework for split testing.
 
   * Modify experiment_full to include subject hypos and goals
 
-  * Admin pages & helpers
-  * Add split test probability calculator
+  * Add split test probability calculator?
+  * Flag for goals in funnel format and percentage along funnel, rather than of overall
 
   * Experiment pages & helpers
     * Cookie tagging helper
