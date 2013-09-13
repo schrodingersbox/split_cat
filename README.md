@@ -16,8 +16,6 @@ This engine provides a framework for split testing.
 
 ## TODO
 
-  * Add a cache to split_cat_factory
-
   * Test with large volume of test data
     * Optimize indexes
 

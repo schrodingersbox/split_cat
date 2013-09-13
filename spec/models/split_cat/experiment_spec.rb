@@ -413,6 +413,8 @@ module SplitCat
           experiment.hypotheses.each { |h| c.hypothesis( h.name, h.weight ) }
           experiment.goals.each { |g| c.goal( g.name ) }
         end
+
+        Experiment.cache.clear
       end
 
       context 'when experiment is not configured' do
@@ -429,6 +431,22 @@ module SplitCat
       end
 
       context 'when experiment is configured' do
+
+        describe 'caching' do
+
+          before( :each ) do
+            experiment.save!
+
+            Experiment.should_receive( :includes ).and_return( experiment )
+            experiment.should_receive( :find_by_name ).and_return( experiment )
+          end
+
+          it 'caches the result' do
+            Experiment.factory( experiment.name ).should be( experiment )
+            Experiment.factory( experiment.name ).should be( experiment )
+          end
+
+        end
 
         context 'and saved' do
 
@@ -459,13 +477,13 @@ module SplitCat
         context 'and not saved' do
 
           it 'returns the experiment if the save is successful' do
-            SplitCat.config.should_receive( :template ).with( experiment.name ).and_return( experiment )
+            config.should_receive( :template ).with( experiment.name ).and_return( experiment )
             experiment.should_receive( :save ).and_return( true )
             Experiment.factory( experiment.name ).should be( experiment )
           end
 
           it 'returns nil and logs an error if it is unable to save' do
-            SplitCat.config.should_receive( :template ).with( experiment.name ).and_return( experiment )
+            config.should_receive( :template ).with( experiment.name ).and_return( experiment )
             experiment.should_receive( :save ).and_return( false )
             Rails.logger.should_receive( :error )
             Experiment.factory( experiment.name ).should be( nil )

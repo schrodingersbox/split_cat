@@ -141,7 +141,14 @@ module SplitCat
     #############################################################################
     # Experiment#factory
 
+    cattr_reader :cache
+    @@cache = HashWithIndifferentAccess.new
+
     def self.factory( name )
+      if experiment = @@cache[ name ]
+        return experiment
+      end
+
       unless template = SplitCat.config.template( name )
         Rails.logger.error( "Experiment.factory not configured for experiment: #{name}" )
         return nil
@@ -159,6 +166,8 @@ module SplitCat
           Rails.logger.error( "Experiment.factory failed to save experiment: #{name}" )
         end
       end
+
+      @@cache[ name.to_sym ] = experiment
 
       return experiment
     end
