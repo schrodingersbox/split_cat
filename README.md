@@ -31,7 +31,6 @@ This engine provides a framework for split testing.
   * Cleanup
      * Save config changes (weights, descs) through to DB
      * Archive & delete experiments
-      * Configurable cookie TTL
       * Fill in all the table relationships
          * Add dependent destroys
       * Fix named route problem in show.html.erb_spec.rb

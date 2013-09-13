@@ -20,6 +20,16 @@ describe SplitCat::Config do
     config.should be( SplitCat::Config.instance )
   end
 
+  describe 'attributes' do
+
+    it 'has a cookie_expiration' do
+      cookie_expiration = 10.years
+      config.cookie_expiration = cookie_expiration
+      config.cookie_expiration.to_s.should eql( cookie_expiration.to_s )
+    end
+
+  end
+
   #############################################################################
   # Config#initialize
 
@@ -27,6 +37,7 @@ describe SplitCat::Config do
 
     it 'initializes the experiment config hash' do
       config.send( :initialize )
+      config.cookie_expiration.to_s.should eql( 10.years.to_s )
       config.experiments.should be_an_instance_of( HashWithIndifferentAccess )
     end
 

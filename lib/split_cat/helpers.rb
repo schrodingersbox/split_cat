@@ -48,7 +48,8 @@ module SplitCat
 
     def set_split_cat_cookie( options = {} )
      if options[ :force ] || !cookies[ :split_cat_token ]
-       cookies[ :split_cat_token ] = { :value => split_cat_token, :expires => 10.years.from_now }
+       expires = SplitCat.config.cookie_expiration.from_now
+       cookies[ :split_cat_token ] = { :value => split_cat_token, :expires => expires }
      end
 
      @split_cat_token = cookies[ :split_cat_token ]

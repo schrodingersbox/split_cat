@@ -6,8 +6,10 @@ module SplitCat
     include Singleton
 
     attr_reader :experiments
+    attr_accessor :cookie_expiration
 
     def initialize
+      @cookie_expiration = 10.years
       @experiments = HashWithIndifferentAccess.new
       @name = nil
     end
