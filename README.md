@@ -33,7 +33,6 @@ This engine provides a framework for split testing.
   * Flag for goals in funnel format and percentage along funnel, rather than of overall
 
   * Cleanup
-     * Externalize strings
      * Update non-structure fields from config
      * Archive & delete experiments
       * Configurable cookie TTL
@@ -41,6 +40,7 @@ This engine provides a framework for split testing.
          * Add dependent destroys
       * Change to hash with indifferent access
       * Save config changes (weights, descs) through to DB
+      * Fix named route problem in show.html.erb_spec.rb
 
   * REST API
 

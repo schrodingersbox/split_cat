@@ -3,7 +3,9 @@ module SplitCat
 
     def experiment_csv_link( experiment )
       content_tag( :p ) do
-        concat link_to 'Export as CSV', experiment_path( experiment, :format => 'csv' )
+        text = t( :export_at_csv, :scope => :split_cat )
+        path = experiment_path( experiment, :format => 'csv' )
+        concat link_to text, path
       end
     end
 
@@ -54,17 +56,17 @@ module SplitCat
 
     def experiment_info( experiment )
       content_tag( :table ) do
-        concat experiment_info_row( 'id', experiment.id )
-        concat experiment_info_row( 'name', experiment.name )
-        concat experiment_info_row( 'description', experiment.description )
-        concat experiment_info_row( 'created at', experiment.created_at )
-        concat experiment_info_row( 'active', experiment.active? )
+        concat experiment_info_row( :id, experiment.id )
+        concat experiment_info_row( :name, experiment.name )
+        concat experiment_info_row( :description, experiment.description )
+        concat experiment_info_row( :created, experiment.created_at )
+        concat experiment_info_row( :active, experiment.active? )
       end
     end
 
     def experiment_info_row( name, value )
       content_tag( :tr ) do
-        concat content_tag( :th, name )
+        concat content_tag( :th, t( name, :scope => :split_cat ) )
         concat content_tag( :td, value )
       end
     end
@@ -103,7 +105,7 @@ module SplitCat
 
     def experiment_report_totals( experiment )
       content_tag( :tr ) do
-        concat content_tag( :th, 'total' )
+        concat content_tag( :th, t( :total, :scope => :split_cat ) )
         experiment.hypotheses.each do |hypothesis|
           count = experiment.hypothesis_counts[ hypothesis.name ]
           concat content_tag( :td, experiment_hypothesis_percentage( hypothesis, count ) )
@@ -114,9 +116,9 @@ module SplitCat
     def experiment_table( experiments )
       content_tag( :table, :border => 1 ) do
         output = content_tag( :tr ) do
-          concat content_tag( :th, 'ID' )
-          concat content_tag( :th, 'Name' )
-          concat content_tag( :th, 'Active' )
+          concat content_tag( :th, t( :id, :scope => :split_cat ) )
+          concat content_tag( :th, t( :name, :scope => :split_cat ) )
+          concat content_tag( :th, t( :active, :scope => :split_cat ) )
         end
 
         experiments.each do |experiment|
@@ -124,7 +126,7 @@ module SplitCat
            concat content_tag( :td, experiment.id )
            concat content_tag( :td, experiment.name )
            concat content_tag( :td, experiment.active? )
-           concat content_tag( :td, link_to( 'Show', experiment ) )
+           concat content_tag( :td, link_to( t( :show, :scope => :split_cat ), experiment ) )
           end
         end
 

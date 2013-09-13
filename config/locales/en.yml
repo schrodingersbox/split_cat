@@ -1,0 +1,16 @@
+en:
+  split_cat:
+    active: active
+    created: created
+    description: description
+    edit: Edit
+    experiment: Experiment
+    experiments: Experiments
+    export_at_csv: Export as CSV
+    goals: Goals
+    hypotheses: Hypotheses
+    id: id
+    name: name
+    report: Report
+    show: Show
+    total: toal

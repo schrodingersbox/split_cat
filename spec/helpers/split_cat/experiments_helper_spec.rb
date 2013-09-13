@@ -72,8 +72,7 @@ describe SplitCat::ExperimentsHelper do
   describe '#experiment_info_row' do
 
     it 'renders a row of the info table' do
-      expected = "<tr><th>foo</th><td>bar</td></tr>"
-      helper.experiment_info_row( 'foo', 'bar' ).should eql( expected )
+      helper.experiment_info_row( 'foo', 'bar' ).should eql_file( 'spec/data/helpers/experiment_info_row.html' )
 
     end
 

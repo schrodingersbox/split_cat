@@ -1,16 +1,16 @@
 <p id="notice"><%= notice %></p>
 
-<h1>Experiment</h1>
+<h1><%= t( :experiment, :scope => :split_cat ) %></h1>
 <%= experiment_info( @experiment ) %>
 
-<h2>Report</h2>
+<h2><%= t( :report, :scope => :split_cat ) %></h2>
 <%= experiment_report( @experiment ) %>
 <%= experiment_csv_link( @experiment ) %>
 
-<h2>Hypotheses</h2>
+<h2><%= t( :hypotheses, :scope => :split_cat ) %></h2>
 <%= experiment_hypothesis_list( @experiment ) %>
 
-<h2>Goals</h2>
+<h2><%= t( :goals, :scope => :split_cat ) %></h2>
 <%= experiment_goal_list( @experiment ) %>
 
-<%= link_to 'Edit', edit_experiment_path( @experiment ) %>
+<%= link_to t( :edit, :scope => :split_cat ), edit_experiment_path( @experiment ) %>
