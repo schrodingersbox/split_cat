@@ -4,7 +4,6 @@ en:
     active_only: active only
     created: created
     description: description
-    edit: Edit
     experiment: Experiment
     experiments: Experiments
     export_at_csv: Export as CSV

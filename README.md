@@ -168,7 +168,6 @@ using multiple user accounts.
      * Archive & delete experiments
      * Fill in all the table relationships
      * Add dependent destroys
-     * Fix named route problem in show.html.erb_spec.rb
 
   * REST API
 
