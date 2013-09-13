@@ -13,12 +13,12 @@ module SplitCat
         puts "Token #{i} = #{tokens.last}"
       end
 
+      puts "Experiment #{i} = #{experiment.name}"
+
       (1..n_experiments).each do |i|
         experiment = Experiment.create( :name => "test_#{i}_#{Time.now.to_i}" )
         n_hypotheses = 2 + rand( max_items - 2 )
         n_goals = rand( max_items )
-
-        puts "Experiment #{i} = #{experiment.name}"
 
         (0..n_hypotheses).each do |i|
           name = ('a'.ord + i).chr
@@ -32,6 +32,7 @@ module SplitCat
         experiment.save!
 
         tokens.each do |token|
+          puts "Hypothesis #{token}"
           hypothesis = experiment.get_hypothesis( token )
           experiment.goals.each do |goal|
             if rand > 0.5

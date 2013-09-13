@@ -360,6 +360,35 @@ module SplitCat
       end
 
       #############################################################################
+      # Experiment#total_subjects
+
+      describe '#total_subjects' do
+
+        before( :each ) do
+          setup_joins
+        end
+
+        it 'returns the sum of hypothesis subjects' do
+          expected = experiment_created.hypothesis_counts.values.inject( 0 ) { |sum,count| sum + count }
+          expected.should_not eql( 0 )
+
+          experiment_created.total_subjects.should eql( expected )
+        end
+
+        it 'memoizes the result' do
+          experiment_created.hypothesis_counts.should_receive( :values ).once.and_return( [] )
+          experiment_created.total_subjects
+          experiment_created.total_subjects
+        end
+
+        it 'tolerates nil entries in the count hash' do
+          experiment_created.hypothesis_counts[ :foobar ] = nil
+          experiment_created.total_subjects
+        end
+
+      end
+
+      #############################################################################
       # Experiment#total_weight
 
       describe '#total_weight' do
@@ -368,11 +397,12 @@ module SplitCat
           expected = experiment_created.hypotheses.inject( 0 ) { |sum,h| sum + h.weight }
           expected.should_not eql( 0 )
 
-          experiment.total_weight.should eql( expected )
+          experiment_created.total_weight.should eql( expected )
         end
 
         it 'memoizes the result' do
           experiment_created.hypotheses.should_receive( :inject ).once.with( 0 ).and_return( 727 )
+          experiment_created.total_weight
           experiment_created.total_weight
         end
 

@@ -52,7 +52,7 @@ module SplitCat
     end
 
     def total_subjects
-      @total_subjects ||= hypothesis_counts.values.inject( 0 ) { |sum,count| sum + count }
+      @total_subjects ||= hypothesis_counts.values.inject( 0 ) { |sum,count| sum + ( count || 0 ) }
     end
 
     # Returns a memoized sum of hypothesis weights
