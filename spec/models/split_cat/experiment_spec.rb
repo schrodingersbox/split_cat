@@ -3,13 +3,32 @@ require 'spec_helper'
 module SplitCat
   describe Experiment do
 
-    let( :experiment_empty ) { FactoryGirl.build( :experiment_empty ) }
-    let( :experiment_full ) { FactoryGirl.build( :experiment_full ) }
-    let( :experiment ) { FactoryGirl.build( :experiment_full ) }
+    let( :experiment )         { FactoryGirl.build( :experiment_full ) }
     let( :experiment_created ) { FactoryGirl.create( :experiment_full ) }
-    let( :goal ) { FactoryGirl.build( :goal_a ) }
-    let( :hypothesis ) { FactoryGirl.build( :hypothesis_a ) }
-    let( :config ) { SplitCat::Config.instance }
+    let( :goal )               { FactoryGirl.build( :goal_a ) }
+    let( :hypothesis )         { FactoryGirl.build( :hypothesis_a ) }
+    let( :config )             { SplitCat::Config.instance }
+
+    let( :experiment_created ) { FactoryGirl.create( :experiment_full ) }
+    let( :hypothesis_created ) { experiment_created.hypotheses.first }
+    let( :goal_created )       { experiment_created.goals.first }
+    let( :subject_created )    { FactoryGirl.create( :subject_a ) }
+
+    def setup_joins
+      HypothesisSubject.create(
+          :hypothesis_id => hypothesis_created.id,
+          :subject_id => subject_created.id,
+          :experiment_id => experiment_created.id )
+      GoalSubject.create(
+          :goal_id => goal_created.id,
+          :subject_id => subject_created.id,
+          :experiment_id => experiment_created.id,
+          :hypothesis_id => hypothesis_created.id  )
+    end
+
+    before( :each ) do
+      config.experiments.clear
+    end
 
     describe 'database' do
 
@@ -63,15 +82,10 @@ module SplitCat
 
       describe '#active?' do
 
-        before( :each ) do
-          config.experiments.clear
-          @experiment = FactoryGirl.create( :experiment_full )
-        end
-
         context 'when experiment is not configured' do
 
           it 'returns false' do
-            @experiment.active?.should be_false
+            experiment_created.active?.should be_false
           end
 
         end
@@ -79,20 +93,20 @@ module SplitCat
         context 'when experiment is configured' do
 
           before( :each ) do
-            config.experiment( experiment.name ) do |c|
-              experiment.hypotheses.each { |h| c.hypothesis( h.name, h.weight ) }
-              experiment.goals.each { |g| c.goal( g.name ) }
+            config.experiment( experiment_created.name ) do |c|
+              experiment_created.hypotheses.each { |h| c.hypothesis( h.name, h.weight ) }
+              experiment_created.goals.each { |g| c.goal( g.name ) }
             end
           end
 
           it 'returns true if experiment has same structure as configuration' do
-            @experiment.should_receive( :same_structure? ).and_return( true )
-            @experiment.active?.should be_true
+            experiment_created.should_receive( :same_structure? ).and_return( true )
+            experiment_created.active?.should be_true
           end
 
           it 'returns false if experiment has different structure as configuration' do
-            @experiment.should_receive( :same_structure? ).and_return( false )
-            @experiment.active?.should be_false
+            experiment_created.should_receive( :same_structure? ).and_return( false )
+            experiment_created.active?.should be_false
           end
 
         end
@@ -105,20 +119,20 @@ module SplitCat
       describe '#choose_hypothesis' do
 
         before( :each ) do
-          @total_weight = experiment_full.total_weight
-          experiment_full.should_receive( :rand ).with( @total_weight ).and_return( 1 )
+          @total_weight = experiment.total_weight
+          experiment.should_receive( :rand ).with( @total_weight ).and_return( 1 )
         end
 
         it 'generates a random number in range of total hypothesis weight' do
-          experiment_full.choose_hypothesis
+          experiment.choose_hypothesis
         end
 
         it 'chooses a hypothesis by weight' do
-          experiment_full.choose_hypothesis.should eql( experiment_full.hypotheses.first )
+          experiment.choose_hypothesis.should eql( experiment.hypotheses.first )
         end
 
         it 'returns the chosen hypothesis' do
-          experiment_full.choose_hypothesis.should be_an_instance_of( Hypothesis )
+          experiment.choose_hypothesis.should be_an_instance_of( Hypothesis )
         end
 
       end
@@ -129,50 +143,54 @@ module SplitCat
       describe '#get_hypothesis' do
 
         before( :each ) do
-          @experiment = FactoryGirl.create( :experiment_full )
-          @subject = FactoryGirl.create( :subject_a )
-          @hypothesis = @experiment.hypotheses.first
+          @hypothesis = experiment_created.hypotheses.first
         end
 
         it 'returns the winner if one is defined' do
-          @experiment.winner = experiment_full.hypotheses.first
-          @experiment.get_hypothesis( @subject.token ).should eql( @experiment.winner )
+          experiment_created.winner = experiment.hypotheses.first
+          experiment_created.get_hypothesis( subject_created.token ).should eql( experiment_created.winner )
         end
 
         it 'returns nil if it can not find the token' do
           token = FactoryGirl.build( :subject_b ).token
-          @experiment.get_hypothesis( token ).should be_nil
+          experiment_created.get_hypothesis( token ).should be_nil
         end
 
         it 'returns the old hypothesis if already assigned' do
-          HypothesisSubject.create( :hypothesis_id => @hypothesis.id, :subject_id => @subject.id, :experiment_id => @experiment.id )
-          @experiment.get_hypothesis( @subject.token ).should eql( @hypothesis )
+          HypothesisSubject.create(
+              :hypothesis_id => @hypothesis.id,
+              :subject_id => subject_created.id,
+              :experiment_id => experiment_created.id )
+          experiment_created.get_hypothesis( subject_created.token ).should eql( @hypothesis )
         end
 
         it 'returns nil if it can not find the old assigned hypothesis' do
-          HypothesisSubject.create( :hypothesis_id => nil, :subject_id => @subject.id, :experiment_id => @experiment.id )
-          @experiment.get_hypothesis( @subject.token ).should be_nil
+          HypothesisSubject.create(
+              :hypothesis_id => nil,
+              :subject_id => subject_created.id,
+              :experiment_id => experiment_created.id )
+          experiment_created.get_hypothesis( subject_created.token ).should be_nil
         end
 
         it 'chooses a hypothesis' do
-          @experiment.should_receive( :choose_hypothesis ).and_return( @hypothesis )
-          @experiment.get_hypothesis( @subject.token ).should eql( @hypothesis )
+          experiment_created.should_receive( :choose_hypothesis ).and_return( @hypothesis )
+          experiment_created.get_hypothesis( subject_created.token ).should eql( @hypothesis )
         end
 
         it 'creates a HypothesisSubject record' do
           HypothesisSubject.delete_all
-          chosen = @experiment.get_hypothesis( @subject.token )
+          chosen = experiment_created.get_hypothesis( subject_created.token )
           HypothesisSubject.count.should eql( 1 )
 
           hs = HypothesisSubject.first
-          hs.subject_id.should eql( @subject.id )
-          hs.experiment_id.should eql( @experiment.id )
+          hs.subject_id.should eql( subject_created.id )
+          hs.experiment_id.should eql( experiment_created.id )
           hs.hypothesis_id.should eql( chosen.id )
         end
 
         it 'returns the chosen hypothesis' do
-          @experiment.should_receive( :choose_hypothesis ).and_return( @hypothesis )
-          @experiment.get_hypothesis( @subject.token ).should eql( @hypothesis )
+          experiment_created.should_receive( :choose_hypothesis ).and_return( @hypothesis )
+          experiment_created.get_hypothesis( subject_created.token ).should eql( @hypothesis )
         end
 
       end
@@ -184,9 +202,9 @@ module SplitCat
 
         it 'memoizes the results of GoalSubject.subject_counts' do
           expected = {}
-          GoalSubject.should_receive( :subject_counts ).once.with( experiment_full ).and_return( expected )
-          experiment_full.goal_counts.should eql( expected )
-          experiment_full.goal_counts.should eql( expected )
+          GoalSubject.should_receive( :subject_counts ).once.with( experiment ).and_return( expected )
+          experiment.goal_counts.should eql( expected )
+          experiment.goal_counts.should eql( expected )
         end
 
       end
@@ -197,21 +215,21 @@ module SplitCat
       describe '#goal_hash' do
 
         it 'returns a HashWithIndifferentAccess' do
-          experiment_full.goal_hash.should be_an_instance_of( HashWithIndifferentAccess )
+          experiment.goal_hash.should be_an_instance_of( HashWithIndifferentAccess )
         end
 
         it 'builds a hash of goals' do
-          goals = experiment_full.goal_hash
+          goals = experiment.goal_hash
           goals.size.should > 0
-          goals.size.should eql( experiment_full.goals.size )
-          experiment_full.goals.each { |g| goals[ g.name ].should be_present }
-          experiment_full.goals.each { |g| goals[ g.name.to_sym ].should be_present }
+          goals.size.should eql( experiment.goals.size )
+          experiment.goals.each { |g| goals[ g.name ].should be_present }
+          experiment.goals.each { |g| goals[ g.name.to_sym ].should be_present }
         end
 
         it 'memoizes the results' do
-          experiment_full.goals.should_receive( :map ).once.and_return( [] )
-          experiment_full.goal_hash
-          experiment_full.goal_hash
+          experiment.goals.should_receive( :map ).once.and_return( [] )
+          experiment.goal_hash
+          experiment.goal_hash
         end
 
       end
@@ -223,9 +241,9 @@ module SplitCat
 
         it 'memoizes the results of HypothesisSubject.subject_counts' do
           expected = {}
-          HypothesisSubject.should_receive( :subject_counts ).once.with( experiment_full ).and_return( expected )
-          experiment_full.hypothesis_counts.should eql( expected )
-          experiment_full.hypothesis_counts.should eql( expected )
+          HypothesisSubject.should_receive( :subject_counts ).once.with( experiment ).and_return( expected )
+          experiment.hypothesis_counts.should eql( expected )
+          experiment.hypothesis_counts.should eql( expected )
         end
 
       end
@@ -236,21 +254,21 @@ module SplitCat
       describe '#hypothesis_hash' do
 
         it 'returns a HashWithIndifferentAccess' do
-          experiment_full.hypothesis_hash.should be_an_instance_of( HashWithIndifferentAccess )
+          experiment.hypothesis_hash.should be_an_instance_of( HashWithIndifferentAccess )
         end
 
         it 'builds a hash of hypotheses' do
-          hypotheses = experiment_full.hypothesis_hash
+          hypotheses = experiment.hypothesis_hash
           hypotheses.size.should > 0
-          hypotheses.size.should eql( experiment_full.hypotheses.size )
-          experiment_full.hypotheses.each { |h| hypotheses[ h.name ].should be_present }
-          experiment_full.hypotheses.each { |h| hypotheses[ h.name.to_sym ].should be_present }
+          hypotheses.size.should eql( experiment.hypotheses.size )
+          experiment.hypotheses.each { |h| hypotheses[ h.name ].should be_present }
+          experiment.hypotheses.each { |h| hypotheses[ h.name.to_sym ].should be_present }
         end
 
         it 'memoizes the results' do
-          experiment_full.hypotheses.should_receive( :map ).once.and_return( [] )
-          experiment_full.hypothesis_hash
-          experiment_full.hypothesis_hash
+          experiment.hypotheses.should_receive( :map ).once.and_return( [] )
+          experiment.hypothesis_hash
+          experiment.hypothesis_hash
         end
       end
 
@@ -260,47 +278,41 @@ module SplitCat
       describe '#record_goal' do
 
         before( :each ) do
-          @experiment = FactoryGirl.create( :experiment_full )
-          @subject = FactoryGirl.create( :subject_a )
-
-          @goal = @experiment.goals.first
-          @hypothesis = @experiment.hypotheses.first
-          HypothesisSubject.create( :hypothesis_id => @hypothesis.id, :subject_id => @subject.id, :experiment_id => @experiment.id )
-          GoalSubject.create( :goal_id => @goal.id, :subject_id => @subject.id, :experiment_id => @experiment.id, :hypothesis_id => @hypothesis.id  )
+          setup_joins
         end
 
         it 'returns true if a winner has been set on the experiment' do
-          @experiment.winner_id = @experiment.hypotheses.first.id
-          @experiment.record_goal( @goal.name, @subject.token ).should be_true
+          experiment_created.winner_id = hypothesis_created.id
+          experiment_created.record_goal( goal_created.name, subject_created.token ).should be_true
         end
 
         it 'returns false if the goal is not found' do
-          @experiment.record_goal( :does_not_exist, @subject.token ).should be_false
+          experiment_created.record_goal( :does_not_exist, subject_created.token ).should be_false
         end
 
         it 'returns false if the token is not found' do
-          @experiment.record_goal( @goal.name, :does_not_exist ).should be_false
+          experiment_created.record_goal( goal_created.name, :does_not_exist ).should be_false
         end
 
         it 'returns true if the subject is not assigned to a hypothesis' do
           HypothesisSubject.delete_all
-          @experiment.record_goal( @goal.name, @subject.token ).should be_true
+          experiment_created.record_goal( goal_created.name, subject_created.token ).should be_true
         end
 
         it 'returns true if the goal has already been recorded' do
-          @experiment.record_goal( @goal.name, @subject.token ).should be_true
+          experiment_created.record_goal( goal_created.name, subject_created.token ).should be_true
         end
 
         it 'returns true if it creates a record' do
           GoalSubject.delete_all
-          @experiment.record_goal( @goal.name, @subject.token ).should be_true
+          experiment_created.record_goal( goal_created.name, subject_created.token ).should be_true
           GoalSubject.count.should eql( 1 )
 
           gs = GoalSubject.first
-          gs.goal_id.should eql( @goal.id )
-          gs.subject_id.should eql( @subject.id )
-          gs.experiment_id.should eql( @experiment.id )
-          gs.hypothesis_id.should eql( @hypothesis.id )
+          gs.goal_id.should eql( goal_created.id )
+          gs.subject_id.should eql( subject_created.id )
+          gs.experiment_id.should eql( experiment_created.id )
+          gs.hypothesis_id.should eql( hypothesis_created.id )
         end
 
       end
@@ -310,12 +322,9 @@ module SplitCat
 
       describe '#same_structure?' do
 
-        let( :experiment ) { FactoryGirl.create( :experiment_full ) }
-        let( :test ) { FactoryGirl.build( :experiment_full ) }
-
         def same_structure_should_be( bool )
-          experiment.same_structure?( test ).should be( bool ? test : nil )
-          test.same_structure?( experiment ).should be( bool ? experiment : nil )
+          experiment_created.same_structure?( experiment ).should be( bool ? experiment : nil )
+          experiment.same_structure?( experiment_created ).should be( bool ? experiment_created : nil )
         end
 
         it 'returns true if the experiment, goals, and hypotheses match significantly' do
@@ -323,28 +332,28 @@ module SplitCat
         end
 
         it 'returns false if there is a mismatch in the experiment name' do
-          test.name = experiment.name.reverse
+          experiment.name = experiment.name.reverse
           same_structure_should_be( false )
         end
 
         it 'returns false if there is a mismatch in the number of goals' do
-          test.goals.delete( test.goals.first )
+          experiment.goals.delete( experiment.goals.first )
           same_structure_should_be( false )
         end
 
         it 'returns false if there is a mismatch in the name of goals' do
-          goal = test.goals.first
+          goal = experiment.goals.first
           goal.name = goal.name.reverse
           same_structure_should_be( false )
         end
 
         it 'returns false if there is a mismatch in the number of hypotheses' do
-          test.hypotheses.delete( test.hypotheses.first )
+          experiment.hypotheses.delete( experiment.hypotheses.first )
           same_structure_should_be( false )
         end
 
         it 'returns false if there is a mismatch in the name of hypotheses' do
-          hypothesis = test.hypotheses.first
+          hypothesis = experiment.hypotheses.first
           hypothesis.name = hypothesis.name.reverse
           same_structure_should_be( false )
         end
@@ -355,18 +364,16 @@ module SplitCat
 
       describe '#total_weight' do
 
-        let( :experiment ) { FactoryGirl.create( :experiment_full ) }
-
         it 'returns the sum of hypothesis weights' do
-          expected = experiment.hypotheses.inject( 0 ) { |sum,h| sum + h.weight }
+          expected = experiment_created.hypotheses.inject( 0 ) { |sum,h| sum + h.weight }
           expected.should_not eql( 0 )
 
           experiment.total_weight.should eql( expected )
         end
 
         it 'memoizes the result' do
-          experiment.hypotheses.should_receive( :inject ).once.with( 0 ).and_return( 727 )
-          experiment.total_weight
+          experiment_created.hypotheses.should_receive( :inject ).once.with( 0 ).and_return( 727 )
+          experiment_created.total_weight
         end
 
       end
@@ -377,28 +384,11 @@ module SplitCat
       describe '#to_csv' do
 
         before( :each ) do
-          @experiment = FactoryGirl.create( :experiment_full )
-          @subject = FactoryGirl.create( :subject_a )
-
-          @hypothesis = @experiment.hypotheses.first
-          @goal = @experiment.goals.first
-
-          HypothesisSubject.create(
-            :hypothesis_id => @hypothesis.id,
-            :subject_id => @subject.id,
-            :experiment_id => @experiment.id
-          )
-
-          GoalSubject.create(
-            :goal_id => @goal.id,
-            :hypothesis_id => @hypothesis.id,
-            :subject_id => @subject.id,
-            :experiment_id => @experiment.id
-          )
+          setup_joins
         end
 
         it 'generates a CSV of experiment results' do
-          @experiment.to_csv.should eql_file( 'spec/data/models/experiment.csv' )
+          experiment_created.to_csv.should eql_file( 'spec/data/models/experiment.csv' )
         end
 
       end
@@ -438,15 +428,13 @@ module SplitCat
         describe 'caching' do
 
           before( :each ) do
-            experiment.save!
-
-            Experiment.should_receive( :includes ).and_return( experiment )
-            experiment.should_receive( :find_by_name ).and_return( experiment )
+            Experiment.should_receive( :includes ).and_return( experiment_created )
+            experiment_created.should_receive( :find_by_name ).and_return( experiment_created )
           end
 
           it 'caches the result' do
-            Experiment.factory( experiment.name ).should be( experiment )
-            Experiment.factory( experiment.name ).should be( experiment )
+            Experiment.factory( experiment_created.name ).should be( experiment_created )
+            Experiment.factory( experiment_created.name ).should be( experiment_created )
           end
 
         end
@@ -454,25 +442,23 @@ module SplitCat
         context 'and saved' do
 
           before( :each ) do
-            experiment.save!
-
-            Experiment.should_receive( :includes ).and_return( experiment )
-            experiment.should_receive( :find_by_name ).and_return( experiment )
+            Experiment.should_receive( :includes ).and_return( experiment_created )
+            experiment_created.should_receive( :find_by_name ).and_return( experiment_created )
           end
 
           it 'loads it from the database' do
-            Experiment.factory( experiment.name ).should be( experiment )
+            Experiment.factory( experiment_created.name ).should be( experiment_created )
           end
 
           it 'returns nil and logs an error if the db and config structures do not match' do
-            experiment.should_receive( :same_structure? ).and_return( false )
+            experiment_created.should_receive( :same_structure? ).and_return( false )
             Rails.logger.should_receive( :error )
-            Experiment.factory( experiment.name ).should be_nil
+            Experiment.factory( experiment_created.name ).should be_nil
           end
 
           it 'returns the experiment if the structures match' do
-            experiment.should_receive( :same_structure? ).and_return( true )
-            Experiment.factory( experiment.name ).should be( experiment )
+            experiment_created.should_receive( :same_structure? ).and_return( true )
+            Experiment.factory( experiment_created.name ).should be( experiment_created )
           end
 
         end

@@ -16,6 +16,8 @@ This engine provides a framework for split testing.
 
 ## TODO
 
+  * Add inverse relationship to experiment.winner
+
   * Test with large volume of test data
     * Optimize indexes
 
