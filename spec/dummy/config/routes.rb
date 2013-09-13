@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   root :to => 'root#index'
 
   get '/token', :to => 'root#token'
-  get '/goals', :to => 'root#goals'
+  get '/goal', :to => 'root#goal'
 
   get '/login', :to => 'root#login'
   get '/logout', :to => 'root#logout'

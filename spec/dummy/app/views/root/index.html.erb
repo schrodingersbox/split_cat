@@ -1,9 +1,6 @@
-<h1>SplitDummy</h1>
-
-<% if cookies[ :login ] %><p>Logged in</p><% end %>
-<p>Token: <%= @split_cat_token %></p>
-
 <p><%= render :partial => split_cat_scope( 'homepage', HOMEPAGE_EXPERIMENT,  @split_cat_token,  @hypothesis ) %></p>
 
+<p>Logged in: <%= !!cookies[ :login ] %> </p>
+<p>Token: <%= @split_cat_token %></p>
 
 

@@ -10,7 +10,7 @@ class RootController < ApplicationController
     redirect_to :action => :index
   end
 
-  def goals
+  def goal
     split_cat_goal( HOMEPAGE_EXPERIMENT, :clicked, @split_cat_token )
     set_split_cat_cookie :force => true
     redirect_to :action => :index

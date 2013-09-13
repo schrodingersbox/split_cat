@@ -14,12 +14,12 @@ This engine provides a framework for split testing.
 
 3. Install and run migrations
 
-    rake split_cat:install:migrations
-    rake db:migrate
+        rake split_cat:install:migrations
+        rake db:migrate
 
 4. Generate some random data
 
-    rake split_cat:random[100,4,4]
+        rake split_cat:random[100,4,4]
 
 5. Restart your Rails server
 
@@ -41,21 +41,41 @@ _TODO: ERD goes here_
 
 Create or add to `config/initializers/split_cat.rb`:
 
-  config.experiment( :my_first_experiment, 'green vs red "buy" button' ) do |e|
-    e.hypothesis( :a, 50, 'current color: green' )
-    e.hypothesis( :b, 50, 'new color: red' )
-    e.goal( :clicked_buy, 'user clicked the "buy" button' )
-  end
+    SplitCat.configure do |config|
 
-### Implement An Experiment
+      config.experiment( :my_first_experiment, 'green vs red "buy" button' ) do |e|
+        e.hypothesis( :a, 50, 'current color: green' )
+        e.hypothesis( :b, 50, 'new color: red' )
+        e.goal( :clicked_buy, 'user clicked the "buy" button' )
+      end
+
+      config.experiment( :my_second_experiment, 'registration flow order' ) do |e|
+        # ...
+      end
+
+    end
+
+### Implement Hypotheses
 
 Create partials for each hypothesis.  e.g. `button_a.html.erb` and `button_b.html.erb`
 
 When rendering the partial, scope it with the experiment:
 
-  render :partial => split_cat_scoped( :my_first_experiment, token, 'button' )
+  	render :partial => split_cat_scoped( :my_first_experiment, token, 'button' )
 
 This will cause the partial to use the hypothesis assigned for the user/token.
+
+### Record Goals
+
+Call `split_cat_goal` to record a goal achieved by a user:
+
+	split_cat_goal( :my_first_experiment, :clicked_buy, token )
+
+### Automatically Generate Token Cookies
+
+Add the following before_file to automatically cookie and set `@split_cat_token`:
+
+	before_filter :set_split_cat_cookie
 
 ### Get A Token
 
@@ -69,13 +89,58 @@ To use an externally defined token:
 
 ### Apply Security To Reports
 
-Simply modify `config.application.rb` to inject your authorization filter into the controller:
+Modify `config.application.rb` to inject your authorization filter into the controller:
 
     config.after_initialize do
       SplitCat::ExperimentsController.instance_eval do
         before_filter :require_login
       end
     end
+
+## Best Practices
+
+### Use A Constant Experiment ID
+
+You will usually want to run a series of experiments with the same structure.
+Using a constant makes it easy to 'bump' the experiment name and just update the views
+and all the hypothesis selection and goal recording just keeps working.
+
+e.g `config/initializers/split_cat.rb`
+
+    HOMEPAGE_EXPERIMENT = :homepage_4
+
+    SplitCat.configure do |config|
+
+      config.experiment( :homepage_4, 'green vs red "buy" button' ) do |e|
+        e.hypothesis( :a, 50, 'current color: green' )
+        e.hypothesis( :b, 50, 'new color: red' )
+        e.goal( :clicked_buy, 'user clicked the "buy" button' )
+      end
+
+    end
+
+e.g. `views/home/index.html.erb`
+
+    render :partial => split_cat_scoped( HOMEPAGE_EXPERIMENT, token, 'buy_button' )
+
+e.g. `controllers/home_controller.rb`
+
+    def buy
+      split_cat_goal( HOMEPAGE_EXPERIMENT, :clicked_buy, token )
+    end
+
+### Set Hypothesis Using A Before Filter
+
+Setting up the hypothesis in the controller lets you easily override it with a param,
+which is nice during development, as it allows you to directly access hypothesis views without
+using multiple user accounts.
+
+  	before_filter :setup_hypothesis, :only => [ :index ]
+  	
+  	def setup_hypothesis
+    	@hypothesis = params[ :hypothesis ]
+    	@hypothesis ||= split_cat_hypothesis( HOMEPAGE_EXPERIMENT, @split_cat_token )
+  	end
 
 ## Reference
 
