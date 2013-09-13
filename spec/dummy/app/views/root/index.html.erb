@@ -1,10 +1,9 @@
 <h1>SplitDummy</h1>
 
-<h2>Split test data</h2>
-<ul>
-  <li>Token: <%= @split_cat_token  %></li>
-  <li>Homepage hypothesis: <%= render :partial => 'homepage_' + @homepage_hypothesis.to_s %></li>
-  <li>Ad hypothesis: <%= @ad_hypothesis %></li>
-</ul>
+<% if cookies[ :login ] %><p>Logged in</p><% end %>
+<p>Token: <%= @split_cat_token %></p>
+
+<p><%= render :partial => 'homepage_' + @hypothesis.to_s %></p>
+
 
 

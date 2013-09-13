@@ -10,6 +10,7 @@ describe SplitCat::ExperimentsController do
 
   before( :each ) do
     @experiment = FactoryGirl.create( :experiment_full )
+    controller.stub( :require_login )
   end
 
   describe '/index' do

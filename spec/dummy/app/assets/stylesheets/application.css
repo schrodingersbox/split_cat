@@ -38,3 +38,7 @@ div.application_nav ul li {
 div.application_body {
 
 }
+
+span.giant_letter {
+    font-size: 60px;
+}

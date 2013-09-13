@@ -5,4 +5,8 @@ class ApplicationController < ActionController::Base
 
   before_filter :set_split_cat_cookie
 
+  def require_login
+    redirect_to '/unauthorized' unless cookies[ :login ]
+  end
+
 end

@@ -16,9 +16,7 @@ This engine provides a framework for split testing.
 
 ## TODO
 
-  * Experiment pages & helpers
-
-  * Figure out how to protect admin pages
+  * Add a cache to split_cat_factory
 
   * Test with large volume of test data
     * Optimize indexes
@@ -50,6 +48,7 @@ This engine provides a framework for split testing.
         * Create or set a token
         * Run an experiment
         * Evaluate an experiment
+        * Apply security to reports
         * Add user_id to subjects
 
 

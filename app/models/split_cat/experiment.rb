@@ -2,7 +2,6 @@ require 'csv'
 
 module SplitCat
 
-
   class Experiment < ActiveRecord::Base
 
     validates_presence_of :name
