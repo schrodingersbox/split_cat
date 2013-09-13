@@ -6,6 +6,7 @@ module SplitCat
     let( :experiment_empty ) { FactoryGirl.build( :experiment_empty ) }
     let( :experiment_full ) { FactoryGirl.build( :experiment_full ) }
     let( :experiment ) { FactoryGirl.build( :experiment_full ) }
+    let( :experiment_created ) { FactoryGirl.create( :experiment_full ) }
     let( :goal ) { FactoryGirl.build( :goal_a ) }
     let( :hypothesis ) { FactoryGirl.build( :hypothesis_a ) }
     let( :config ) { SplitCat::Config.instance }
@@ -27,12 +28,14 @@ module SplitCat
 
     describe 'associations' do
 
-      it 'has many goals' do
+      it 'has many goals with an inverse relationship' do
         should have_many( :goals )
+        experiment_created.goals.first.experiment.should be( experiment_created )
       end
 
-      it 'has many hypotheses' do
+      it 'has many hypotheses with an inverse relationship' do
         should have_many( :hypotheses )
+        experiment_created.hypotheses.first.experiment.should be( experiment_created )
       end
 
       it 'belongs to a winner hypotheses' do

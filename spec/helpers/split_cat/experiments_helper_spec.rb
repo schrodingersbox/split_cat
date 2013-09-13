@@ -50,7 +50,7 @@ describe SplitCat::ExperimentsHelper do
       hypothesis = experiment.hypotheses.first
       experiment.hypothesis_counts[ hypothesis.name ] = 10
 
-      expected = "1 ()"
+      expected = "1 (10.0%)"
       helper.experiment_hypothesis_percentage( hypothesis, 1 ).should eql( expected )
     end
 

@@ -1,9 +1,12 @@
+# let( :experiment) and let( :association ) before calling
+
 shared_examples_for 'splitable' do
 
   describe 'associations' do
 
-    it 'belongs to an experiment' do
+    it 'belongs to an experiment with an inverse relationship' do
       should belong_to( :experiment )
+      association.first.experiment.should be( experiment )
     end
 
   end

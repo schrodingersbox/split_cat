@@ -7,8 +7,8 @@ module SplitCat
     validates_presence_of :name
     validates_uniqueness_of :name
 
-    has_many :hypotheses, -> { order( :name ) }
-    has_many :goals, -> { order( :name ) }
+    has_many :hypotheses, -> { order( :name ) }, :inverse_of => :experiment
+    has_many :goals, -> { order( :name ) }, :inverse_of => :experiment
     belongs_to :winner, :class_name => Hypothesis
 
     # An experiment is only valid if it matches the current configuration
