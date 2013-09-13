@@ -19,13 +19,10 @@ This engine provides a framework for split testing.
   * Test with large volume of test data
     * Optimize indexes
 
-
-  * Modify experiment_full to include subject hypos and goals
-
-  * Add split test probability calculator?
   * Flag for goals in funnel format and percentage along funnel, rather than of overall
 
   * As needed
+    * Add split test probability calculator
     * Add a goals controller with action to record goal and redirect
 
   * Cleanup
