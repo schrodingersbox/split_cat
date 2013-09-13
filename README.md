@@ -16,9 +16,6 @@ This engine provides a framework for split testing.
 
 ## TODO
 
-  * experiments#index
-    * Add active / all filter
-
   * Experiment pages & helpers
   * Cookie tagging helper
 
@@ -33,13 +30,11 @@ This engine provides a framework for split testing.
   * Flag for goals in funnel format and percentage along funnel, rather than of overall
 
   * Cleanup
-     * Update non-structure fields from config
+     * Save config changes (weights, descs) through to DB
      * Archive & delete experiments
       * Configurable cookie TTL
       * Fill in all the table relationships
          * Add dependent destroys
-      * Change to hash with indifferent access
-      * Save config changes (weights, descs) through to DB
       * Fix named route problem in show.html.erb_spec.rb
 
   * REST API

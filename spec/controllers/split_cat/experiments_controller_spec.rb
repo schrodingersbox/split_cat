@@ -25,6 +25,15 @@ describe SplitCat::ExperimentsController do
       expect( assigns( :experiments ) ).to be_present
     end
 
+    it 'accepts name and active params' do
+      name = @experiment.name
+      active = '1'
+      get :index, :name => name, :active => active
+
+      expect( assigns( :name ) ).to be( name )
+      expect( assigns( :active ) ).to eql( active == '1' )
+    end
+
   end
 
   describe '/show' do

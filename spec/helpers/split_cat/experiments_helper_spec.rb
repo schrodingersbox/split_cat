@@ -111,6 +111,17 @@ describe SplitCat::ExperimentsHelper do
 
   end
 
+  describe '#experiment_search_form' do
+
+    it 'renders the _form partial with locals' do
+      name = 'foo'
+      active = true
+      helper.should_receive( :render ).with( :partial => 'form', :locals => { :name => name, :active => active } )
+      helper.experiment_search_form( name, active )
+    end
+
+  end
+
   describe '#experiment_table' do
 
     it 'renders a total row in the report table' do

@@ -1,2 +1,5 @@
 <h1><%= t( :experiments, :scope => :split_cat ) %></h1>
 <%= experiment_table( @experiments ) %>
+
+<h2><%= t( :search, :scope => :split_cat ) %></h2>
+<%= experiment_search_form( @name, @active) %>

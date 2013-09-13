@@ -113,6 +113,10 @@ module SplitCat
       end
     end
 
+    def experiment_search_form( name, active)
+      render :partial => 'form', :locals => { :name => name, :active => active }
+    end
+
     def experiment_table( experiments )
       content_tag( :table, :border => 1 ) do
         output = content_tag( :tr ) do

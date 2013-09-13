@@ -1,6 +1,7 @@
 en:
   split_cat:
     active: active
+    active_only: active only
     created: created
     description: description
     edit: Edit
@@ -12,5 +13,6 @@ en:
     id: id
     name: name
     report: Report
+    search: Search
     show: Show
     total: toal
