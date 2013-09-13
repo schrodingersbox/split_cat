@@ -4,6 +4,10 @@ describe SplitCat::ExperimentsHelper do
 
   let( :experiment ) { FactoryGirl.create( :experiment_full ) }
 
+  before( :each ) do
+    SplitCat.config.experiments.clear
+  end
+
   describe '#experiment_csv_link' do
 
     it 'renders a link to the experiment as csv' do

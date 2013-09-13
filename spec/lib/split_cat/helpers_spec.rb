@@ -2,9 +2,9 @@ require 'spec_helper'
 
 module SplitCat
 
-  describe API do
+  describe Helpers do
 
-    include SplitCat::API
+    include SplitCat::Helpers
 
     let( :config ) { SplitCat::Config.instance }
     let( :experiment ) { FactoryGirl.build( :experiment_full ) }
@@ -156,6 +156,34 @@ module SplitCat
 
         end
 
+      end
+
+    end
+
+    #############################################################################
+    # #set_split_cat_cookie
+
+    describe '#set_split_cat_cookie' do
+
+      before( :each ) do
+        @cookies = {}
+        should_receive( :cookies ).at_least(1).times.and_return( @cookies )
+      end
+
+      it 'sets the split_cat_token instance variable' do
+        set_split_cat_cookie
+        @split_cat_token.should be_present
+      end
+
+      it 'assigns a cookie if one is not already set' do
+        set_split_cat_cookie
+        @cookies.size.should eql( 1)
+      end
+
+      it 'assigns a cookie when passed the :force option' do
+        token = set_split_cat_cookie
+        set_split_cat_cookie.should eql( token )
+        set_split_cat_cookie( :force => true ).should_not eql( token )
       end
 
     end

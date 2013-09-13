@@ -17,7 +17,6 @@ This engine provides a framework for split testing.
 ## TODO
 
   * Experiment pages & helpers
-  * Cookie tagging helper
 
   * Figure out how to protect admin pages
 

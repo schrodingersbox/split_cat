@@ -6,7 +6,7 @@ class RootController < ApplicationController
   end
 
   def token
-    cookies[ :split_cat_token ] = { :value => split_cat_token, :expires => 10.years.from_now }
+    set_split_cat_cookie :force => true
     redirect_to :action => :index
   end
 
