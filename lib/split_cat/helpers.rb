@@ -34,6 +34,14 @@ module SplitCat
     end
 
     #############################################################################
+    # #split_cat_scope
+
+    def split_cat_scope( root, name, token, hypothesis = nil )
+      hypothesis = split_cat_hypothesis( name, token ) unless hypothesis
+      return root + '_' + hypothesis.to_s
+    end
+
+    #############################################################################
     # #set_split_cat_cookie
 
     def set_split_cat_cookie( options = {} )

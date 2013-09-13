@@ -9,6 +9,7 @@ module SplitCat
 
     has_many :hypotheses, -> { order( :name ) }, :inverse_of => :experiment
     has_many :goals, -> { order( :name ) }, :inverse_of => :experiment
+
     belongs_to :winner, :class_name => Hypothesis
 
     # An experiment is only valid if it matches the current configuration
@@ -48,6 +49,10 @@ module SplitCat
         hypotheses.map { |hypothesis| @hypothesis_hash[ hypothesis.name ] = hypothesis }
       end
       return @hypothesis_hash
+    end
+
+    def total_subjects
+      @total_subjects ||= hypothesis_counts.values.inject( 0 ) { |sum,count| sum + count }
     end
 
     # Returns a memoized sum of hypothesis weights

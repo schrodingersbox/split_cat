@@ -3,8 +3,6 @@ class RootController < ApplicationController
   before_filter :setup_hypothesis, :only => [ :index ]
 
   def index
-    @hypothesis = params[ :hypothesis ]
-    @hypothesis ||= split_cat_hypothesis( HOMEPAGE_EXPERIMENT, @split_cat_token )
   end
 
   def token

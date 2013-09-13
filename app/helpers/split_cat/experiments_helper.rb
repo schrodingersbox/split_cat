@@ -46,12 +46,12 @@ module SplitCat
 
     def experiment_hypothesis_percentage( hypothesis, value )
       experiment = hypothesis.experiment
-      value ||= 0
+      value = number_with_delimiter( value || 0 )
 
       ratio = experiment.hypothesis_counts[ hypothesis.name ] || 0
-      return sprintf( "%i ()", value ) if ratio == 0
+      return sprintf( "%s ()", value ) if ratio == 0
 
-      return sprintf( "%i (%0.1f%%)", value, ( value.to_f / ratio ) * 100 )
+      return sprintf( "%s (%0.1f%%)", value, ( value.to_f / ratio ) * 100 )
     end
 
     def experiment_info( experiment )
@@ -61,6 +61,7 @@ module SplitCat
         concat experiment_info_row( :description, experiment.description )
         concat experiment_info_row( :created, experiment.created_at )
         concat experiment_info_row( :active, experiment.active? )
+        concat experiment_info_row( :subjects, number_with_delimiter( experiment.total_subjects ) )
       end
     end
 
@@ -83,12 +84,14 @@ module SplitCat
 
     def experiment_report_goal( goal )
       experiment = goal.experiment
+      style = cycle( 'background-color: #dddddd;', '' )
 
       content_tag( :tr ) do
-        concat content_tag( :th, goal.name )
+        concat content_tag( :th, goal.name, :style => style )
         experiment.hypotheses.each do |hypothesis|
           count = experiment.goal_counts[ goal.name ][ hypothesis.name ]
-          concat content_tag( :td, experiment_hypothesis_percentage( hypothesis, count ) )
+          percentage = experiment_hypothesis_percentage( hypothesis, count )
+          concat content_tag( :td, percentage, :style => style )
         end
       end
 

@@ -83,6 +83,31 @@ module SplitCat
     end
 
     #############################################################################
+    # #hypothesis
+
+    describe '#split_cat_scope' do
+
+      before( :each ) do
+        @experiment = :foo
+        @hypothesis = :a
+        @token = 'xyz'
+        @root = 'root'
+        @expected = 'root_a'
+      end
+
+      it 'postfixes the hypothesis name onto the given root' do
+        should_not_receive( :split_cat_hypothesis )
+        split_cat_scope( @root, @experiment, @token, @hypothesis ).should eql( @expected )
+      end
+
+      it 'looks up or assigns the hypothesis if one is not provided' do
+        should_receive( :split_cat_hypothesis ).with( @experiment, @token ).and_return( @hypothesis )
+        split_cat_scope( @root, @experiment, @token ).should eql( @expected )
+      end
+
+    end
+
+    #############################################################################
     # #set_split_cat_cookie
 
     describe '#set_split_cat_cookie' do
