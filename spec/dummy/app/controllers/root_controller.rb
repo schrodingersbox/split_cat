@@ -1,8 +1,8 @@
 class RootController < ApplicationController
 
   def index
-    @homepage_hypothesis = split_cat_hypothesis( HOMEPAGE_EXPERIMENT, @split_cat_token )
-    @ad_hypothesis = split_cat_hypothesis( AD_EXPERIMENT, @split_cat_token )
+    @homepage_hypothesis = params[ :homepage_hypothesis ] || split_cat_hypothesis( HOMEPAGE_EXPERIMENT, @split_cat_token )
+    @ad_hypothesis = params[ :ad_hypothesis ] || split_cat_hypothesis( AD_EXPERIMENT, @split_cat_token )
   end
 
   def token
@@ -11,6 +11,7 @@ class RootController < ApplicationController
   end
 
   def goals
+    set_split_cat_cookie :force => true
     split_cat_goal( HOMEPAGE_EXPERIMENT, :clicked, @split_cat_token )
     split_cat_goal( AD_EXPERIMENT, :clicked, @split_cat_token )
     redirect_to :action => :index

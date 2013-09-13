@@ -13,7 +13,7 @@ module SplitCat
     belongs_to :winner, :class_name => Hypothesis
 
     def active?
-      !!split_cat_factory( name )
+      split_cat_active?( self )
     end
 
     # Returns a memoized array of goal name => hypothesis_name => subject counts

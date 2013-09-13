@@ -3,7 +3,7 @@
 <h2>Split test data</h2>
 <ul>
   <li>Token: <%= @split_cat_token  %></li>
-  <li>Homepage hypothesis: <%= @homepage_hypothesis %></li>
+  <li>Homepage hypothesis: <%= render :partial => 'homepage_' + @homepage_hypothesis.to_s %></li>
   <li>Ad hypothesis: <%= @ad_hypothesis %></li>
 </ul>
 

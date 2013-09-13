@@ -83,7 +83,7 @@ module SplitCat
     end
 
     #############################################################################
-    # #hypothesis
+    # #split_cat_factory
 
     describe '#split_cat_factory' do
 
@@ -107,10 +107,7 @@ module SplitCat
       context 'when experiment is configured' do
 
         before( :each ) do
-          config.experiment( experiment.name ) do |c|
-            experiment.hypotheses.each { |h| c.hypothesis( h.name, h.weight ) }
-            experiment.goals.each { |g| c.goal( g.name ) }
-          end
+          config_experiment
         end
 
         context 'and saved' do
@@ -161,6 +158,44 @@ module SplitCat
     end
 
     #############################################################################
+    # #split_cat_active?
+
+    describe '#split_cat_active?' do
+
+      before( :each ) do
+        config.experiments.clear
+        @experiment = FactoryGirl.create( :experiment_full )
+      end
+
+      context 'when experiment is not configured' do
+
+        it 'returns false' do
+          split_cat_active?( @experiment ).should be_false
+        end
+
+      end
+
+      context 'when experiment is configured' do
+
+        before( :each ) do
+          config_experiment
+        end
+
+        it 'returns true if experiment has same structure as configuration' do
+          @experiment.should_receive( :same_structure? ).and_return( true )
+          split_cat_active?( @experiment ).should be_true
+        end
+
+        it 'returns false if experiment has different structure as configuration' do
+          @experiment.should_receive( :same_structure? ).and_return( false )
+          split_cat_active?( @experiment ).should be_false
+        end
+
+      end
+
+    end
+
+    #############################################################################
     # #set_split_cat_cookie
 
     describe '#set_split_cat_cookie' do
@@ -186,6 +221,13 @@ module SplitCat
         set_split_cat_cookie( :force => true ).should_not eql( token )
       end
 
+      it 'uses the configured cookie expiration time' do
+        expires = 1.years.ago
+        SplitCat.config.cookie_expiration.should_receive( :from_now ).and_return( expires )
+        set_split_cat_cookie
+        cookies.values.first[ :expires ].should eql( expires )
+      end
+
     end
 
     #############################################################################
@@ -198,6 +240,13 @@ module SplitCat
       @token = 'secret'
 
       should_receive( :split_cat_factory ).and_return( @experiment )
+    end
+
+    def config_experiment
+      config.experiment( experiment.name ) do |c|
+        experiment.hypotheses.each { |h| c.hypothesis( h.name, h.weight ) }
+        experiment.goals.each { |g| c.goal( g.name ) }
+      end
     end
 
   end
