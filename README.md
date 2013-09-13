@@ -27,6 +27,9 @@ This engine provides a framework for split testing.
   * Add split test probability calculator?
   * Flag for goals in funnel format and percentage along funnel, rather than of overall
 
+  * As needed
+    * Add a goals controller with action to record goal and redirect
+
   * Cleanup
      * Save config changes (weights, descs) through to DB
      * Archive & delete experiments

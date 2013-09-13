@@ -83,119 +83,6 @@ module SplitCat
     end
 
     #############################################################################
-    # #split_cat_factory
-
-    describe '#split_cat_factory' do
-
-      context 'when experiment is not configured' do
-
-        before( :each ) do
-          config.experiments.clear
-        end
-
-        it 'returns nil' do
-          split_cat_factory( :does_not_exist ).should be_nil
-        end
-
-        it 'logs an error' do
-          Rails.logger.should_receive( :error )
-          split_cat_factory( :does_not_exist ).should be_nil
-        end
-
-      end
-
-      context 'when experiment is configured' do
-
-        before( :each ) do
-          config_experiment
-        end
-
-        context 'and saved' do
-
-          before( :each ) do
-            experiment.save!
-
-            Experiment.should_receive( :includes ).and_return( experiment )
-            experiment.should_receive( :find_by_name ).and_return( experiment )
-          end
-
-          it 'loads it from the database' do
-            split_cat_factory( experiment.name ).should be( experiment )
-          end
-
-          it 'returns nil and logs an error if the db and config structures do not match' do
-            experiment.should_receive( :same_structure? ).and_return( false )
-            Rails.logger.should_receive( :error )
-            split_cat_factory( experiment.name ).should be_nil
-          end
-
-          it 'returns the experiment if the structures match' do
-            experiment.should_receive( :same_structure? ).and_return( true )
-            split_cat_factory( experiment.name ).should be( experiment )
-          end
-
-        end
-
-        context 'and not saved' do
-
-          it 'returns the experiment if the save is successful' do
-            SplitCat.config.should_receive( :experiment_factory ).with( experiment.name ).and_return( experiment )
-            experiment.should_receive( :save ).and_return( true )
-            split_cat_factory( experiment.name ).should be( experiment )
-          end
-
-          it 'returns nil and logs an error if it is unable to save' do
-            SplitCat.config.should_receive( :experiment_factory ).with( experiment.name ).and_return( experiment )
-            experiment.should_receive( :save ).and_return( false )
-            Rails.logger.should_receive( :error )
-            split_cat_factory( experiment.name ).should be( nil )
-          end
-
-        end
-
-      end
-
-    end
-
-    #############################################################################
-    # #split_cat_active?
-
-    describe '#split_cat_active?' do
-
-      before( :each ) do
-        config.experiments.clear
-        @experiment = FactoryGirl.create( :experiment_full )
-      end
-
-      context 'when experiment is not configured' do
-
-        it 'returns false' do
-          split_cat_active?( @experiment ).should be_false
-        end
-
-      end
-
-      context 'when experiment is configured' do
-
-        before( :each ) do
-          config_experiment
-        end
-
-        it 'returns true if experiment has same structure as configuration' do
-          @experiment.should_receive( :same_structure? ).and_return( true )
-          split_cat_active?( @experiment ).should be_true
-        end
-
-        it 'returns false if experiment has different structure as configuration' do
-          @experiment.should_receive( :same_structure? ).and_return( false )
-          split_cat_active?( @experiment ).should be_false
-        end
-
-      end
-
-    end
-
-    #############################################################################
     # #set_split_cat_cookie
 
     describe '#set_split_cat_cookie' do
@@ -239,14 +126,7 @@ module SplitCat
       @hypothesis = @experiment.hypotheses.first
       @token = 'secret'
 
-      should_receive( :split_cat_factory ).and_return( @experiment )
-    end
-
-    def config_experiment
-      config.experiment( experiment.name ) do |c|
-        experiment.hypotheses.each { |h| c.hypothesis( h.name, h.weight ) }
-        experiment.goals.each { |g| c.goal( g.name ) }
-      end
+      Experiment.should_receive( :factory ).and_return( @experiment )
     end
 
   end

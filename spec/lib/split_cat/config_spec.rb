@@ -105,12 +105,12 @@ describe SplitCat::Config do
   end
 
   #############################################################################
-  # Config#experiment_factory
+  # Config#template
 
-  describe '#experiment_factory' do
+  describe '#template' do
 
     it 'returns nil if the experiment is not configured' do
-      config.experiment_factory( :does_not_exist ).should be_nil
+      config.template( :does_not_exist ).should be_nil
     end
 
     it 'creates a new experiment from the config values' do
@@ -119,7 +119,7 @@ describe SplitCat::Config do
         c.hypothesis( @hypothesis, @weight, @description )
       end
 
-      experiment = config.experiment_factory( @name )
+      experiment = config.template( @name )
       hypothesis = experiment.hypotheses.first
       goal = experiment.goals.first
 

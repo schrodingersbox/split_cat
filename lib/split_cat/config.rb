@@ -36,7 +36,7 @@ module SplitCat
       @experiments[ @name ][ :goals ] << { :name => name, :description => description }
     end
 
-    def experiment_factory( name )
+    def template( name )
       return nil unless data = @experiments[ name ]
 
       experiment = Experiment.new( data[ :experiment ] )

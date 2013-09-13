@@ -12,7 +12,7 @@ module SplitCat
     # #split_cat_goal
 
     def split_cat_goal( name, goal, token )
-      unless experiment = split_cat_factory( name )
+      unless experiment = Experiment.factory( name )
         Rails.logger.error( "Experiment.goal failed to find experiment: #{name}" )
         return false
       end
@@ -24,46 +24,13 @@ module SplitCat
     # #split_cat_hypothesis
 
     def split_cat_hypothesis( name, token )
-      unless experiment = split_cat_factory( name )
+      unless experiment = Experiment.factory( name )
         Rails.logger.error( "Experiment.hypothesis failed to find experiment: #{name}" )
         return nil
       end
 
       h = experiment.get_hypothesis( token )
       return h ? h.name.to_sym : nil
-    end
-
-    #############################################################################
-    # #split_cat_factory
-
-    def split_cat_factory( name )
-      unless template = SplitCat.config.experiment_factory( name )
-        Rails.logger.error( "Experiment.factory not configured for experiment: #{name}" )
-        return nil
-      end
-
-      if experiment = Experiment.includes( :goals, :hypotheses ).find_by_name( name )
-        unless experiment.same_structure?( template )
-          experiment = nil
-          Rails.logger.error( "Experiment.factory mismatched experiment: #{name}" )
-        end
-      else
-        if template.save
-          experiment = template
-        else
-          Rails.logger.error( "Experiment.factory failed to save experiment: #{name}" )
-        end
-      end
-
-      return experiment
-    end
-
-    #############################################################################
-    # #split_cat_active?
-
-    def split_cat_active?( experiment )
-      return false unless template = SplitCat.config.experiment_factory( experiment.name )
-      return !!experiment.same_structure?( template )
     end
 
     #############################################################################

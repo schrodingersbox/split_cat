@@ -11,8 +11,11 @@ module SplitCat
     has_many :goals, -> { order( :name ) }
     belongs_to :winner, :class_name => Hypothesis
 
+    # An experiment is only valid if it matches the current configuration
+
     def active?
-      split_cat_active?( self )
+      return false unless template = SplitCat.config.template( name )
+      return !!same_structure?( template )
     end
 
     # Returns a memoized array of goal name => hypothesis_name => subject counts
@@ -133,6 +136,31 @@ module SplitCat
           csv << [ g.name ] + hypotheses.map { |h| goal_counts[ g.name ][ h.name ] || 0 }
         end
       end
+    end
+
+    #############################################################################
+    # Experiment#factory
+
+    def self.factory( name )
+      unless template = SplitCat.config.template( name )
+        Rails.logger.error( "Experiment.factory not configured for experiment: #{name}" )
+        return nil
+      end
+
+      if experiment = Experiment.includes( :goals, :hypotheses ).find_by_name( name )
+        unless experiment.same_structure?( template )
+          experiment = nil
+          Rails.logger.error( "Experiment.factory mismatched experiment: #{name}" )
+        end
+      else
+        if template.save
+          experiment = template
+        else
+          Rails.logger.error( "Experiment.factory failed to save experiment: #{name}" )
+        end
+      end
+
+      return experiment
     end
 
   end

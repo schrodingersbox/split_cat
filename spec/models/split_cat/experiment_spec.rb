@@ -5,8 +5,10 @@ module SplitCat
 
     let( :experiment_empty ) { FactoryGirl.build( :experiment_empty ) }
     let( :experiment_full ) { FactoryGirl.build( :experiment_full ) }
+    let( :experiment ) { FactoryGirl.build( :experiment_full ) }
     let( :goal ) { FactoryGirl.build( :goal_a ) }
     let( :hypothesis ) { FactoryGirl.build( :hypothesis_a ) }
+    let( :config ) { SplitCat::Config.instance }
 
     describe 'database' do
 
@@ -52,6 +54,47 @@ module SplitCat
     end
 
     context 'instance methods' do
+
+      #############################################################################
+      # #active?
+
+      describe '#active?' do
+
+        before( :each ) do
+          config.experiments.clear
+          @experiment = FactoryGirl.create( :experiment_full )
+        end
+
+        context 'when experiment is not configured' do
+
+          it 'returns false' do
+            @experiment.active?.should be_false
+          end
+
+        end
+
+        context 'when experiment is configured' do
+
+          before( :each ) do
+            config.experiment( experiment.name ) do |c|
+              experiment.hypotheses.each { |h| c.hypothesis( h.name, h.weight ) }
+              experiment.goals.each { |g| c.goal( g.name ) }
+            end
+          end
+
+          it 'returns true if experiment has same structure as configuration' do
+            @experiment.should_receive( :same_structure? ).and_return( true )
+            @experiment.active?.should be_true
+          end
+
+          it 'returns false if experiment has different structure as configuration' do
+            @experiment.should_receive( :same_structure? ).and_return( false )
+            @experiment.active?.should be_false
+          end
+
+        end
+
+      end
 
       #############################################################################
       # Experiment#choose_hypothesis
@@ -353,6 +396,81 @@ module SplitCat
 
         it 'generates a CSV of experiment results' do
           @experiment.to_csv.should eql_file( 'spec/data/models/experiment.csv' )
+        end
+
+      end
+
+    end
+
+    #############################################################################
+    # ::factory
+
+    describe '::factory' do
+
+      before( :each ) do
+        config.experiments.clear
+        config.experiment( experiment.name ) do |c|
+          experiment.hypotheses.each { |h| c.hypothesis( h.name, h.weight ) }
+          experiment.goals.each { |g| c.goal( g.name ) }
+        end
+      end
+
+      context 'when experiment is not configured' do
+
+        it 'returns nil' do
+          Experiment.factory( :does_not_exist ).should be_nil
+        end
+
+        it 'logs an error' do
+          Rails.logger.should_receive( :error )
+          Experiment.factory( :does_not_exist ).should be_nil
+        end
+
+      end
+
+      context 'when experiment is configured' do
+
+        context 'and saved' do
+
+          before( :each ) do
+            experiment.save!
+
+            Experiment.should_receive( :includes ).and_return( experiment )
+            experiment.should_receive( :find_by_name ).and_return( experiment )
+          end
+
+          it 'loads it from the database' do
+            Experiment.factory( experiment.name ).should be( experiment )
+          end
+
+          it 'returns nil and logs an error if the db and config structures do not match' do
+            experiment.should_receive( :same_structure? ).and_return( false )
+            Rails.logger.should_receive( :error )
+            Experiment.factory( experiment.name ).should be_nil
+          end
+
+          it 'returns the experiment if the structures match' do
+            experiment.should_receive( :same_structure? ).and_return( true )
+            Experiment.factory( experiment.name ).should be( experiment )
+          end
+
+        end
+
+        context 'and not saved' do
+
+          it 'returns the experiment if the save is successful' do
+            SplitCat.config.should_receive( :template ).with( experiment.name ).and_return( experiment )
+            experiment.should_receive( :save ).and_return( true )
+            Experiment.factory( experiment.name ).should be( experiment )
+          end
+
+          it 'returns nil and logs an error if it is unable to save' do
+            SplitCat.config.should_receive( :template ).with( experiment.name ).and_return( experiment )
+            experiment.should_receive( :save ).and_return( false )
+            Rails.logger.should_receive( :error )
+            Experiment.factory( experiment.name ).should be( nil )
+          end
+
         end
 
       end
