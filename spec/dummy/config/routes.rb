@@ -12,4 +12,6 @@ Rails.application.routes.draw do
   get '/unauthorized', :to => 'root#unauthorized'
 
   get '/admin', :to => 'admin#index'
+
+  get ':controller(/:action(/:id))'
 end

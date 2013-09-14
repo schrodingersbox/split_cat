@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+include SplitCat
+
 describe SplitCat::ExperimentsHelper do
 
   let( :experiment ) { FactoryGirl.create( :experiment_full ) }
@@ -40,6 +42,14 @@ describe SplitCat::ExperimentsHelper do
     it 'renders the hypothesis' do
       expected = "<p><b>hypothesis_a</b> (10%) - this is hypothesis a</p>"
       helper.experiment_hypothesis( experiment.hypotheses.first ).should eql( expected )
+    end
+
+  end
+
+  describe '#experiment_hypothesis_list' do
+
+    it 'renders a list of hypotheses' do
+      helper.experiment_hypothesis_list( experiment ).should eql_file( 'spec/data/helpers/experiment_hypothesis_list.html' )
     end
 
   end
@@ -129,6 +139,7 @@ describe SplitCat::ExperimentsHelper do
   describe '#experiment_table' do
 
     it 'renders a total row in the report table' do
+      FactoryGirl.create( :experiment_empty )
       experiment_table( Experiment.all ).should eql_file( 'spec/data/helpers/experiment_table.html' )
     end
 

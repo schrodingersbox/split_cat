@@ -135,6 +135,10 @@ module SplitCat
           experiment.choose_hypothesis.should be_an_instance_of( Hypothesis )
         end
 
+        it 'returns the first hypothesis if the selection algorithm fails' do
+          experiment.hypotheses.should_receive( :each )
+          experiment.choose_hypothesis.should eql( experiment.hypotheses.first )
+        end
       end
 
       #############################################################################

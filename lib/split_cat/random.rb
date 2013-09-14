@@ -12,8 +12,10 @@ module SplitCat
         tokens << SplitCat::Subject.create.token
       end
 
+      Rails.logger.info "SplitCat::Random.generate N_EXPERIMENTS=#{ n_experiments }"
+
       (1..n_experiments).each do |i|
-        experiment = Experiment.create( :name => "test_#{i}_#{Time.now.to_i}" )
+        experiment = Experiment.create( :name => "test_#{ i }_#{ Time.now.to_i }" )
         n_hypotheses = 2 + rand( max_items - 2 )
         n_goals = rand( max_items )
 
@@ -26,9 +28,14 @@ module SplitCat
           experiment.goals << SplitCat::Goal.create( :name => "goal_#{i}" )
         end
 
+        Rails.logger.info "SplitCat::Random.generate SAVING EXPERIMENT: #{ experiment.name }"
+
         experiment.save!
 
         tokens.each do |token|
+
+          Rails.logger.info "SplitCat::Random.generate ASSIGNING: #{token}"
+
           experiment.get_hypothesis( token )
           experiment.goals.each do |goal|
             if rand > 0.5

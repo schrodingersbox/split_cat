@@ -3,6 +3,8 @@ require 'spec_helper'
 module SplitCat
   describe GoalSubject do
 
+    let( :experiment ) { FactoryGirl.create( :experiment_full ) }
+
     describe 'database' do
 
       it 'has columns' do
@@ -26,17 +28,15 @@ module SplitCat
 
     describe '::subject_counts' do
 
-      let( :experiment ) { FactoryGirl.create( :experiment_full ) }
-      let( :subject )    { FactoryGirl.create( :subject_a ) }
-
       before( :each ) do
         @hypothesis = experiment.hypotheses.first
         @goal = experiment.goals.first
+        @subject = FactoryGirl.create( :subject_a )
 
         GoalSubject.create(
             :goal_id => @goal.id,
             :hypothesis_id => @hypothesis.id,
-            :subject_id => subject.id,
+            :subject_id => @subject.id,
             :experiment_id => experiment.id )
 
       end
@@ -63,8 +63,8 @@ module SplitCat
       end
 
       it 'returns an empty hash if the query fails' do
-        ActiveRecord::Base.connection.should_receive( :execute ).and_return( nil )
-        GoalSubject.subject_counts( experiment ).should be_empty
+        ActiveRecord::Base.connection.should_receive( :execute ).and_return( [] )
+        GoalSubject.subject_counts( experiment )[ @goal.name ].should be_empty
       end
 
     end
@@ -74,11 +74,42 @@ module SplitCat
 
     describe '::subject_count_sql' do
 
-      let( :experiment ) { FactoryGirl.create( :experiment_full ) }
-
       it 'generates SQL given an experiment' do
-        GoalSubject.send( :subject_count_sql, experiment ).should eql_file( 'spec/data/models/goal_subject_count_sql.sql' )
+        sql = GoalSubject.send( :subject_count_sql, experiment )
+        sql.should eql_file( 'spec/data/models/goal_subject_count_sql.sql' )
       end
+    end
+
+    #############################################################################
+    # GoalSubject::subject_count_row
+
+    describe '::subject_count_row' do
+
+      before( :each ) do
+        @counts = HashWithIndifferentAccess.new
+        @hypothesis = experiment.hypotheses.first
+        @goal = experiment.goals.first
+        @subject_count = 5
+      end
+
+      it 'parses sql hash results into the counts hash' do
+        row = {
+            'goal_id' => @goal.id,
+            'hypothesis_id' => @hypothesis.id.to_s,
+            'subject_count' => @subject_count.to_s
+        }
+
+        GoalSubject.subject_count_row( @counts,  row )
+        @counts[ @goal.id ].should eql( { @hypothesis.id => @subject_count } )
+      end
+
+      it 'parses sql array results into the counts hash' do
+        row = [ @goal.id, @hypothesis.id.to_s, @subject_count.to_s ]
+        GoalSubject.subject_count_row( @counts,  row )
+
+        @counts[ @goal.id ].should eql( { @hypothesis.id => @subject_count } )
+      end
+
     end
 
   end

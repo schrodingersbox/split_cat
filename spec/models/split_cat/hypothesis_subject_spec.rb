@@ -3,6 +3,8 @@ require 'spec_helper'
 module SplitCat
   describe HypothesisSubject do
 
+    let( :experiment ) { FactoryGirl.create( :experiment_full ) }
+
     describe 'database' do
 
       it 'has columns' do
@@ -24,7 +26,6 @@ module SplitCat
 
     describe '::subject_counts' do
 
-      let( :experiment ) { FactoryGirl.create( :experiment_full ) }
       let( :subject )    { FactoryGirl.create( :subject_a ) }
 
       before( :each ) do
@@ -58,8 +59,8 @@ module SplitCat
       end
 
       it 'returns an empty hash if the query fails' do
-        ActiveRecord::Base.connection.should_receive( :execute ).and_return( nil )
-        HypothesisSubject.subject_counts( experiment ).should be_empty
+        ActiveRecord::Base.connection.should_receive( :execute ).and_return( [] )
+        HypothesisSubject.subject_counts( experiment )[ @hypothesis.name ].should eql( 0 )
       end
 
     end
@@ -69,13 +70,37 @@ module SplitCat
 
     describe '::subject_count_sql' do
 
-      let( :experiment ) { FactoryGirl.create( :experiment_full ) }
-
       it 'generates SQL given an experiment' do
         HypothesisSubject.send( :subject_count_sql, experiment ).should eql_file( 'spec/data/models/hypothesis_subject_count_sql.sql' )
       end
     end
 
+    #############################################################################
+    # HypothesisSubject::subject_count_row
+
+    describe '::subject_count_row' do
+
+      before( :each ) do
+        @counts = HashWithIndifferentAccess.new
+        @hypothesis = experiment.hypotheses.first
+        @subject_count = 5
+      end
+
+      it 'parses sql hash results into the counts hash' do
+        row = { 'hypothesis_id' => @hypothesis.id.to_s, 'subject_count' => @subject_count.to_s }
+        HypothesisSubject.subject_count_row( @counts,  row )
+
+        @counts[ @hypothesis.id ].should eql( @subject_count )
+      end
+
+      it 'parses sql array results into the counts hash' do
+        row = [ @hypothesis.id.to_s, @subject_count.to_s ]
+        HypothesisSubject.subject_count_row( @counts,  row )
+
+        @counts[ @hypothesis.id ].should eql( @subject_count )
+      end
+
+    end
 
   end
 end

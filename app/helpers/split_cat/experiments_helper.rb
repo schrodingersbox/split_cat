@@ -128,12 +128,14 @@ module SplitCat
           concat content_tag( :th, t( :active, :scope => :split_cat ) )
         end
 
+        show = t( :show, :scope => :split_cat )
+
         experiments.each do |experiment|
           output += content_tag( :tr ) do
            concat content_tag( :td, experiment.id )
            concat content_tag( :td, experiment.name )
            concat content_tag( :td, experiment.active? )
-           concat content_tag( :td, link_to( t( :show, :scope => :split_cat ), experiment ) )
+           concat content_tag( :td, link_to( show, { :controller => :experiments, :action => :show, :id => experiment.id } ) )
           end
         end
 
