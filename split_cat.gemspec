@@ -1,4 +1,4 @@
-$:.push File.expand_path("../lib", __FILE__)
+$:.push File.expand_path('../lib', __FILE__)
 
 # Maintain your gem's version:
 require 'split_cat/version'
@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.version     = SplitCat::VERSION
   s.authors     = ['Rich Humphrey']
   s.email       = ['rich@schrodingersbox.com']
-  s.homepage    = "https://github.com/schrodingersbox/split_cat"
+  s.homepage    = 'https://github.com/schrodingersbox/split_cat'
   s.summary     = 'A Rails engine for split testing'
   s.description = ''
 

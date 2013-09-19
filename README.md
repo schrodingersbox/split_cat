@@ -156,6 +156,8 @@ using multiple user accounts.
 
 ## TODO
 
+  * Spec rake tasks
+
   * As needed
     * Add a goals controller with action to record goal and redirect
     * Add split test probability calculator

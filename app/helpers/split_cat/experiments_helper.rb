@@ -3,7 +3,7 @@ module SplitCat
 
     def experiment_csv_link( experiment )
       content_tag( :p ) do
-        text = t( :export_at_csv, :scope => :split_cat )
+        text = t( :export_as_csv, :scope => :split_cat )
         path = experiment_path( experiment, :format => 'csv' )
         concat link_to text, path
       end

@@ -6,7 +6,7 @@ en:
     description: description
     experiment: Experiment
     experiments: Experiments
-    export_at_csv: Export as CSV
+    export_as_csv: Export as CSV
     goals: Goals
     hypotheses: Hypotheses
     id: id
