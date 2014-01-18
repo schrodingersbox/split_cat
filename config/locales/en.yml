@@ -1,7 +1,5 @@
 en:
   split_cat:
-    active: active
-    active_only: active only
     created: created
     description: description
     experiment: Experiment

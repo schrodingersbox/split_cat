@@ -124,7 +124,6 @@ module SplitCat
         output = content_tag( :tr ) do
           concat content_tag( :th, t( :id, :scope => :split_cat ) )
           concat content_tag( :th, t( :name, :scope => :split_cat ) )
-          concat content_tag( :th, t( :active, :scope => :split_cat ) )
         end
 
         show = t( :show, :scope => :split_cat )

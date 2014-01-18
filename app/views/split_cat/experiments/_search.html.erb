@@ -4,10 +4,5 @@
         <%= text_field_tag( :name, name ) %>
     </p>
 
-    <p>
-      <%= check_box_tag( :active, 1, active )  %>
-        <%= label_tag( :active, t( :active_only, :scope => :split_cat ) ) %>
-    </p>
-
       <%= submit_tag( t( :search, :scope => :split_cat ) ) %>
 <% end %>
