@@ -1,3 +1,9 @@
+[![Gem Version](https://badge.fury.io/rb/split_cat.png)](http://badge.fury.io/rb/split_cat)
+[![Build Status](https://travis-ci.org/schrodingersbox/split_cat.png?branch=master)](https://travis-ci.org/schrodingersbox/split_cat)
+[![Dependency Status](https://gemnasium.com/schrodingersbox/split_cat.png)](https://gemnasium.com/schrodingersbox/split_cat)
+[![Code Climate](https://codeclimate.com/github/schrodingersbox/split_cat.png)](https://codeclimate.com/github/schrodingersbox/split_cat)
+[![Coverage Status](https://coveralls.io/repos/schrodingersbox/split_cat/badge.png)](https://coveralls.io/r/schrodingersbox/split_cat)
+
 # schrodingersbox/split_cat
 
 This Rails engine provides a framework for split testing.
@@ -159,6 +165,7 @@ using multiple user accounts.
  * [FactoryGirl](https://github.com/thoughtbot/factory_girl)
  * [Shoulda](https://github.com/thoughtbot/shoulda-matchers)
  * [The one line split-test, or how to A/B all the time](http://www.startuplessonslearned.com/2008/09/one-line-split-test-or-how-to-ab-all.html)
+ * [Add Achievement Badges to Your Gem README](http://elgalu.github.io/2013/add-achievement-badges-to-your-gem-readme/)
 
 ## TODO
 

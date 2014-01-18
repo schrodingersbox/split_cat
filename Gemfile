@@ -14,7 +14,6 @@ gemspec
 # gem 'debugger'
 
 group :development, :test do
-  gem 'simplecov', '0.6.4', :require => false
   gem 'spec_cat', :tag => 'v0.1.0', :git => 'https://github.com/schrodingersbox/spec_cat.git'
   gem 'shoulda-matchers'
 end
