@@ -78,42 +78,6 @@ module SplitCat
     context 'instance methods' do
 
       #############################################################################
-      # #active?
-
-      describe '#active?' do
-
-        context 'when experiment is not configured' do
-
-          it 'returns false' do
-            experiment_created.active?.should be_false
-          end
-
-        end
-
-        context 'when experiment is configured' do
-
-          before( :each ) do
-            config.experiment( experiment_created.name ) do |c|
-              experiment_created.hypotheses.each { |h| c.hypothesis( h.name, h.weight ) }
-              experiment_created.goals.each { |g| c.goal( g.name ) }
-            end
-          end
-
-          it 'returns true if experiment has same structure as configuration' do
-            experiment_created.should_receive( :same_structure? ).and_return( true )
-            experiment_created.active?.should be_true
-          end
-
-          it 'returns false if experiment has different structure as configuration' do
-            experiment_created.should_receive( :same_structure? ).and_return( false )
-            experiment_created.active?.should be_false
-          end
-
-        end
-
-      end
-
-      #############################################################################
       # Experiment#choose_hypothesis
 
       describe '#choose_hypothesis' do

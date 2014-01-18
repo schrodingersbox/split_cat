@@ -9,8 +9,6 @@ module SplitCat
 
       @experiments = Experiment.order( 'id desc' )
       @experiments = @experiments.where( 'name like ?', '%' + @name + '%') if @name
-
-      @experiments = @experiments.map { |e| e.active? ? e : nil }.compact if @active
     end
 
     # GET /experiments/1

@@ -12,13 +12,6 @@ module SplitCat
 
     belongs_to :winner, :class_name => Hypothesis
 
-    # An experiment is only valid if it matches the current configuration
-
-    def active?
-      return false unless template = SplitCat.config.template( name )
-      return !!same_structure?( template )
-    end
-
     # Returns a memoized array of goal name => hypothesis_name => subject counts
 
     def goal_counts

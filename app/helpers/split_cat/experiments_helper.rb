@@ -60,7 +60,6 @@ module SplitCat
         concat experiment_info_row( :name, experiment.name )
         concat experiment_info_row( :description, experiment.description )
         concat experiment_info_row( :created, experiment.created_at )
-        concat experiment_info_row( :active, experiment.active? )
         concat experiment_info_row( :subjects, number_with_delimiter( experiment.total_subjects ) )
       end
     end
@@ -134,7 +133,6 @@ module SplitCat
           output += content_tag( :tr ) do
            concat content_tag( :td, experiment.id )
            concat content_tag( :td, experiment.name )
-           concat content_tag( :td, experiment.active? )
            concat content_tag( :td, link_to( show, { :controller => :experiments, :action => :show, :id => experiment.id } ) )
           end
         end
