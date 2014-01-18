@@ -28,10 +28,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'webrat', '~> 0.7', '>= 0.7.3'
   s.add_development_dependency 'factory_girl_rails', '~> 4.0'
 
-  s.add_development_dependency 'autotest', '~> 0'
-  s.add_development_dependency 'autotest-fsevent', '~> 0'
-  s.add_development_dependency 'autotest-growl', '~> 0'
-  s.add_development_dependency 'autotest-rails', '~> 0'
-  s.add_development_dependency 'autotest-standalone', '~> 0'
-
 end
