@@ -117,7 +117,7 @@ module SplitCat
     end
 
     def experiment_search_form( name, active)
-      render :partial => 'form', :locals => { :name => name, :active => active }
+      render :partial => 'search', :locals => { :name => name, :active => active }
     end
 
     def experiment_table( experiments )

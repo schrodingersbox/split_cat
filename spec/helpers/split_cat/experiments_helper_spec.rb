@@ -130,7 +130,7 @@ describe SplitCat::ExperimentsHelper do
     it 'renders the _form partial with locals' do
       name = 'foo'
       active = true
-      helper.should_receive( :render ).with( :partial => 'form', :locals => { :name => name, :active => active } )
+      helper.should_receive( :render ).with( :partial => 'search', :locals => { :name => name, :active => active } )
       helper.experiment_search_form( name, active )
     end
 

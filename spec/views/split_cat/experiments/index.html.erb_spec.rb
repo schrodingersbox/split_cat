@@ -1,15 +1,16 @@
 require 'spec_helper'
 
-include SplitCat
+describe "split_cat/experiments/index" do
 
-describe 'split_cat/experiments/index.html.erb' do
+  let( :experiment ) { FactoryGirl.create( :experiment_full ) }
 
-  before( :each ) do
-    assign( :experiments, Experiment.all )
+  before(:each) do
+    stub_view_routes
+
+    assign(:experiments, [ experiment, experiment ])
   end
 
-  it 'renders without exception' do
+  it "renders a list of experiments" do
     render
   end
-
 end

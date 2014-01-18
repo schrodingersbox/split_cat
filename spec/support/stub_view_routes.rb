@@ -4,6 +4,8 @@
 
 def stub_view_routes
 
-  view.stub( :experiment_path ).and_return( '/split_cat/experiments' )
+  view.stub( :experiment_path ).and_return( '/split_cat/experiment' )
+  view.stub( :experiments_path ).and_return( '/split_cat/experiments' )
+  view.stub( :new_experiment_path ).and_return( '/split_cat/experiments/new' )
 
 end
