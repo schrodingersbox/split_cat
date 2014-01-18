@@ -1,12 +1,12 @@
-# schrodingersbox/split_cat README
+# schrodingersbox/split_cat
 
-This engine provides a framework for split testing.
+This Rails engine provides a framework for split testing.
 
 ## Getting Started
 
 1. Add this to your `Gemfile` and `bundle install`
 
-		gem 'split_cat', :git => 'https://github.com/schrodingersbox/split_cat.git'
+		gem 'split_cat'
 
 2. Add this to your `config/routes.rb`
 
@@ -27,7 +27,7 @@ This engine provides a framework for split testing.
 
 ## Background
 
-_TODO: ERD goes here_
+![UML](schrodingersbox.github.com/split_cat/doc/uml.png)
 
 ### Rules
 
@@ -111,7 +111,7 @@ e.g `config/initializers/split_cat.rb`
 
     SplitCat.configure do |config|
 
-      config.experiment( :homepage_4, 'green vs red "buy" button' ) do |e|
+      config.experiment( HOMEPAGE_EXPERIMENT, 'green vs red "buy" button' ) do |e|
         e.hypothesis( :a, 50, 'current color: green' )
         e.hypothesis( :b, 50, 'new color: red' )
         e.goal( :clicked_buy, 'user clicked the "buy" button' )
