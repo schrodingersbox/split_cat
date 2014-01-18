@@ -174,7 +174,6 @@ using multiple user accounts.
   * REST API
 
   * Document
-    * Background - UML
     * How to
         * Evaluate an experiment
 
