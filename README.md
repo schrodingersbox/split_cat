@@ -2,6 +2,10 @@
 
 This Rails engine provides a framework for split testing.
 
+This framework allows you to assign anonymous users to experiments with goals and weighted hypotheses.
+It makes experiments easy to configure and implement.
+The reporting side still needs some work.
+
 ## Getting Started
 
 1. Add this to your `Gemfile` and `bundle install`
@@ -27,7 +31,9 @@ This Rails engine provides a framework for split testing.
 
 ## Background
 
-![UML](schrodingersbox.github.com/split_cat/doc/uml.png)
+See [The one line split-test, or how to A/B all the time](http://www.startuplessonslearned.com/2008/09/one-line-split-test-or-how-to-ab-all.html)
+
+![UML](doc/uml.png)
 
 ### Rules
 
