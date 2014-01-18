@@ -45,6 +45,14 @@ module SplitCat
     # #set_split_cat_cookie
 
     def set_split_cat_cookie( options = {} )
+
+      # Create a Subject for the cookie token, if it doesn't exist
+
+     if cookies[ :split_cat_token ] && cookies[ :split_cat_token ][ :value ]  &&
+         !Subject.where( :token => cookies[ :split_cat_token ][ :value ] ).first
+       split_cat_token( cookies[ :split_cat_token ] )
+     end
+
      if options[ :force ] || !cookies[ :split_cat_token ]
        expires = SplitCat.config.cookie_expiration.from_now
        cookies[ :split_cat_token ] = { :value => split_cat_token, :expires => expires }

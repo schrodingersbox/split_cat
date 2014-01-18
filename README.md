@@ -49,6 +49,16 @@ See [The one line split-test, or how to A/B all the time](http://www.startupless
 
 ## How To
 
+### Apply Security To Reports
+
+Modify `config.application.rb` to inject your authorization filter into the controller:
+
+    config.after_initialize do
+      SplitCat::ExperimentsController.instance_eval do
+        before_filter :require_login
+      end
+    end
+
 ### Create A New Experiment
 
 Create or add to `config/initializers/split_cat.rb`:
@@ -73,7 +83,7 @@ Create partials for each hypothesis.  e.g. `button_a.html.erb` and `button_b.htm
 
 When rendering the partial, scope it with the experiment:
 
-  	render :partial => split_cat_scoped( :my_first_experiment, token, 'button' )
+  	render :partial => split_cat_scoped( 'button', :my_first_experiment, token  )
 
 This will cause the partial to use the hypothesis assigned for the user/token.
 
@@ -98,16 +108,6 @@ To obtain a new token:
 To use an externally defined token:
 
     split_cat_token( external_token )
-
-### Apply Security To Reports
-
-Modify `config.application.rb` to inject your authorization filter into the controller:
-
-    config.after_initialize do
-      SplitCat::ExperimentsController.instance_eval do
-        before_filter :require_login
-      end
-    end
 
 ## Best Practices
 
@@ -172,6 +172,7 @@ using multiple user accounts.
   * Spec rake tasks
 
   * As needed
+    * Add pagination to admin
     * Add a goals controller with action to record goal and redirect
     * Add split test probability calculator
       * hypo.control - boolean flag to determine which is baseline
