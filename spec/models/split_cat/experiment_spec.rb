@@ -414,11 +414,10 @@ module SplitCat
           Experiment.factory( :does_not_exist ).should be_nil
         end
 
-        it 'logs an error' do
-          Rails.logger.should_receive( :error )
-          Experiment.factory( :does_not_exist ).should be_nil
+        it 'returns database version' do
+          experiment = Experiment.create( :name => 'foo' )
+          Experiment.factory( experiment.name ).should eql( experiment )
         end
-
       end
 
       context 'when experiment is configured' do
@@ -448,9 +447,8 @@ module SplitCat
             Experiment.factory( experiment_created.name ).should be( experiment_created )
           end
 
-          it 'returns nil and logs an error if the db and config structures do not match' do
+          it 'returns the config structure if the db and config do not match' do
             experiment_created.should_receive( :same_structure? ).and_return( false )
-            Rails.logger.should_receive( :error )
             Experiment.factory( experiment_created.name ).should be_nil
           end
 
@@ -469,10 +467,9 @@ module SplitCat
             Experiment.factory( experiment.name ).should be( experiment )
           end
 
-          it 'returns nil and logs an error if it is unable to save' do
+          it 'returns nil if it is unable to save' do
             config.should_receive( :template ).with( experiment.name ).and_return( experiment )
             experiment.should_receive( :save ).and_return( false )
-            Rails.logger.should_receive( :error )
             Experiment.factory( experiment.name ).should be( nil )
           end
 

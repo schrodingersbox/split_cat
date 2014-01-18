@@ -169,6 +169,8 @@ using multiple user accounts.
 
 ## TODO
 
+  * Rework Experiment::factory to use template over DB, but fall back to DB
+
   * Spec rake tasks
 
   * As needed

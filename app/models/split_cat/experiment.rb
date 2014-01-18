@@ -147,22 +147,11 @@ module SplitCat
         return experiment
       end
 
-      unless template = SplitCat.config.template( name )
-        Rails.logger.error( "Experiment.factory not configured for experiment: #{name}" )
-        return nil
-      end
-
+      template = SplitCat.config.template( name )
       if experiment = Experiment.includes( :goals, :hypotheses ).find_by_name( name )
-        unless experiment.same_structure?( template )
-          experiment = nil
-          Rails.logger.error( "Experiment.factory mismatched experiment: #{name}" )
-        end
+        return nil if template && !experiment.same_structure?( template )
       else
-        if template.save
-          experiment = template
-        else
-          Rails.logger.error( "Experiment.factory failed to save experiment: #{name}" )
-        end
+        experiment = template if template && template.save
       end
 
       @@cache[ name.to_sym ] = experiment
