@@ -77,7 +77,7 @@ Create or add to `config/initializers/split_cat.rb`:
 
     end
 
-### Implement Hypotheses
+### Implement Hypotheses Views
 
 Create partials for each hypothesis.  e.g. `button_a.html.erb` and `button_b.html.erb`
 
@@ -86,6 +86,13 @@ When rendering the partial, scope it with the experiment:
   	render :partial => split_cat_scoped( 'button', :my_first_experiment, token  )
 
 This will cause the partial to use the hypothesis assigned for the user/token.
+
+### Implement Hypothesis Logic
+
+You can get a raw hypothesis symbol for logic-based experiments:
+
+     hypothesis = split_cat_hypothesis( name, token )
+     do_something if hypothesis == :a
 
 ### Record Goals
 

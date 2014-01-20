@@ -129,6 +129,7 @@ module SplitCat
 
       it 'assigns a cookie when passed the :force option' do
         token = set_split_cat_cookie
+        @cookies[ :split_cat_token ] = token # Hack to prevent lookup including expires value
         set_split_cat_cookie.should eql( token )
         set_split_cat_cookie( :force => true ).should_not eql( token )
       end
