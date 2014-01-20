@@ -84,7 +84,7 @@ module SplitCat
 
         before( :each ) do
           @total_weight = experiment.total_weight
-          experiment.should_receive( :rand ).with( @total_weight ).and_return( 1 )
+          experiment.stub( :rand ).with( @total_weight ).and_return( 1 )
         end
 
         it 'generates a random number in range of total hypothesis weight' do
@@ -92,7 +92,8 @@ module SplitCat
         end
 
         it 'chooses a hypothesis by weight' do
-          experiment.choose_hypothesis.should eql( experiment.hypotheses.first )
+          Kernel.stub( :rand ).and_return( experiment.hypotheses[ 0 ].weight )
+          experiment.choose_hypothesis.should eql( experiment.hypotheses[ 1 ] )
         end
 
         it 'returns the chosen hypothesis' do

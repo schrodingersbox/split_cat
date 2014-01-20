@@ -82,9 +82,15 @@ module SplitCat
 
     def choose_hypothesis
       total = 0
-      roll = rand( total_weight ) + 1
-      hypotheses.each { |h| return h if roll <= ( total += h.weight ) }
-      return hypotheses.first
+      roll = Kernel.rand( total_weight ) + 1
+      hypothesis = nil
+      hypotheses.each do |h|
+        if roll <= ( total += h.weight )
+          hypothesis ||= h
+        end
+      end
+      hypothesis ||= hypotheses.first
+      return hypothesis
     end
 
     #############################################################################
