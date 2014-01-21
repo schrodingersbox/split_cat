@@ -140,7 +140,23 @@ describe SplitCat::ExperimentsHelper do
 
     it 'renders a total row in the report table' do
       FactoryGirl.create( :experiment_empty )
-      experiment_table( Experiment.all ).should eql_file( 'spec/data/helpers/experiment_table.html' )
+      helper.experiment_table( Experiment.all ).should eql_file( 'spec/data/helpers/experiment_table.html' )
+    end
+
+  end
+
+  describe '#experiment_table_header' do
+
+    it 'renders a header row in the report table' do
+      helper.experiment_table_header.should eql_file( 'spec/data/helpers/experiment_table_header.html' )
+    end
+
+  end
+
+  describe '#experiment_table_row' do
+
+    it 'renders a data row in the report table' do
+      helper.experiment_table_row( experiment ).should eql_file( 'spec/data/helpers/experiment_table_row.html' )
     end
 
   end

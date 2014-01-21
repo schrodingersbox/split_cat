@@ -21,12 +21,14 @@ module SplitCat
     # Return a memoized hash of goal name => goals
 
     def goal_hash
-      unless @goal_hash
-        @goal_hash = HashWithIndifferentAccess.new
-        goals.map { |goal| @goal_hash[ goal.name ] = goal }
-      end
-      return @goal_hash
+      return @goal_hash ||= hash_name_to_item( goals )
      end
+
+    def hash_name_to_item( items )
+      hash = HashWithIndifferentAccess.new
+      items.map { |i| hash[ i.name ] = i }
+      return hash
+    end
 
     # Returns a memoized array of hypothesis name => subject counts
 
@@ -37,11 +39,7 @@ module SplitCat
     # Return a memoized hash of hypothesis name => hypotheses
 
     def hypothesis_hash
-      unless @hypothesis_hash
-        @hypothesis_hash = HashWithIndifferentAccess.new
-        hypotheses.map { |hypothesis| @hypothesis_hash[ hypothesis.name ] = hypothesis }
-      end
-      return @hypothesis_hash
+      return @hypothesis_hash ||= hash_name_to_item( hypotheses )
     end
 
     def total_subjects
@@ -133,11 +131,15 @@ module SplitCat
 
     def to_csv
       CSV.generate do |csv|
-        csv << [ nil ] + hypotheses.map { |h| h.name }
-        csv << [ 'total' ] + hypotheses.map { |h| hypothesis_counts[ h.name ] || 0 }
+        hypothesis_names = hypotheses.map { |h| h.name }
+        hypothesis_totals = hypotheses.map { |h| hypothesis_counts[ h.name ] || 0 }
+
+        csv << [ nil ] + hypothesis_names
+        csv << [ 'total' ] + hypothesis_totals
 
         goals.each do |g|
-          csv << [ g.name ] + hypotheses.map { |h| goal_counts[ g.name ][ h.name ] || 0 }
+          goal_totals = hypotheses.map { |h| goal_counts[ g.name ][ h.name ] || 0 }
+          csv << [ g.name ] + goal_totals
         end
       end
     end

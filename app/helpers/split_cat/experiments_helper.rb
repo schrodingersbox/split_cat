@@ -120,24 +120,32 @@ module SplitCat
     end
 
     def experiment_table( experiments )
-      content_tag( :table, :border => 1 ) do
-        output = content_tag( :tr ) do
-          concat content_tag( :th, t( :id, :scope => :split_cat ) )
-          concat content_tag( :th, t( :name, :scope => :split_cat ) )
-        end
+      show = t( :show, :scope => :split_cat )
+      header = experiment_table_header
+      rows = experiments.map { |e| experiment_table_row( e ) }
+      content = header + rows.join.html_safe
+      return content_tag( :table, content, :border => 1 )
+    end
 
-        show = t( :show, :scope => :split_cat )
+    def experiment_table_header
+      id =  t( :id, :scope => :split_cat )
+      name = t( :name, :scope => :split_cat )
 
-        experiments.each do |experiment|
-          output += content_tag( :tr ) do
-           concat content_tag( :td, experiment.id )
-           concat content_tag( :td, experiment.name )
-           concat content_tag( :td, link_to( show, { :controller => :experiments, :action => :show, :id => experiment.id } ) )
-          end
-        end
-
-        output
+      return content_tag( :tr ) do
+        concat content_tag( :th, id )
+        concat content_tag( :th, name )
       end
+    end
+
+    def experiment_table_row( experiment )
+      show = t( :show, :scope => :split_cat )
+      link = link_to show, :controller => :experiments, :action => :show, :id => experiment.id
+
+      return content_tag( :tr ) do
+         concat content_tag( :td, experiment.id )
+         concat content_tag( :td, experiment.name )
+         concat content_tag( :td, link )
+        end
     end
 
   end
